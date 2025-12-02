@@ -25,7 +25,6 @@ def login():
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # xử lý đăng ký
         return redirect('/login')
     return render_template('register.html')
 
