@@ -59,7 +59,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <form class="contactform" action="index.html" method="post">
+                                <form class="contactform" action="{{ url_for('auth.login') }}" method="post">
                                     <div class="aa-single-field">
                                         <label for="email">Email: <span class="required">*</span></label>
                                         <input type="email" required="required" aria-required="true" value="" name="email">
