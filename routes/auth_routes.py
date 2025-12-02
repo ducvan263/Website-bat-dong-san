@@ -1,13 +1,25 @@
 from flask import Blueprint, render_template, request, redirect, session
+from services.user_service import UserService  # giả sử service có hàm get_user_by_email
 
 auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # kiểm tra tài khoản
-        return redirect('/')
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        # Giả sử UserService có phương thức xác thực user
+        user = UserService.get_user_by_email(email)
+        if user and user.password_hash == password:  # demo, sau này hash password
+            session['user_id'] = user.id
+            session['user_name'] = user.name
+            session['role'] = user.role
+            return redirect('/')
+        else:
+            return render_template('signin.html', error="Email hoặc mật khẩu sai")
     return render_template('signin.html')
+
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
