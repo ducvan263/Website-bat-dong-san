@@ -67,8 +67,14 @@
                             </div>
                             <div class="col-md-6 col-sm-6 col-xs-6">
                                 <div class="aa-header-right">
-                                    <a href="signup.html" class="aa-register">Đăng kí</a>
-                                    <a href="{{ url_for('auth.login') }}" class="aa-login">Đăng nhập</a>
+                                    {% if session.get('user_id') %}
+                                        <span>Xin chào, {{ session.get('user_name') }}</span>
+                                        <a href="{{ url_for('auth.logout')}}" class="">Đăng xuất</a>
+
+                                    {% else %}
+                                        <a href="signup.html" class="aa-register">Đăng kí</a>
+                                        <a href="{{ url_for('auth.login') }}" class="aa-login">Đăng nhập</a>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>

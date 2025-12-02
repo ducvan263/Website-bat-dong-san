@@ -8,24 +8,24 @@
     <title>Home Property | Đăng Ký</title>
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static',filename='img/favicon.ico')}}" type="image/x-icon'">
 
 
     <!-- Font awesome -->
-    <link href="css/font-awesome.css" rel="stylesheet">
+    <link href="{{ url_for('static',filename='css/font-awesome.css')}}" rel="stylesheet">
     <!-- Bootstrap -->
-    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="{{ url_for('static',filename='css/bootstrap.css')}}" rel="stylesheet">
     <!-- slick slider -->
-    <link rel="stylesheet" type="text/css" href="css/slick.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/slick.css')}}">
     <!-- price picker slider -->
-    <link rel="stylesheet" type="text/css" href="css/nouislider.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/nouislider.css')}}">
     <!-- Fancybox slider -->
-    <link rel="stylesheet" href="css/jquery.fancybox.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/jquery.fancybox.css')}}" type="text/css" media="screen"/>
     <!-- Theme color -->
-    <link id="switcher" href="css/theme-color/default-theme.css" rel="stylesheet">
+    <link id="switcher" href="{{ url_for('static',filename='css/theme-color/default-theme.css')}}" rel="stylesheet">
 
     <!-- Main style sheet -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="{{ url_for('static',filename='css/style.css')}}" rel="stylesheet">
 
 
     <!-- Google Font -->
@@ -53,7 +53,7 @@
                     <div class="aa-signin-area">
                         <div class="aa-signin-form">
                             <div class="aa-signin-form-title">
-                                <a class="aa-property-home, banner" href="index.html"><img src="img/bannerWeb.png" alt="banner" style="max-width: 100%; height: auto; padding-bottom: 10px;border-bottom: 1px solid #404040 ;"></a>
+                                <a class="aa-property-home, banner" href="index.html"><img src="{{ url_for('static',filename='img/bannerWeb.png')}}" alt="banner" style="max-width: 100%; height: auto; padding-bottom: 10px;border-bottom: 1px solid #404040 ;"></a>
                                 <div class="row">
                                     <div class="title">
                                         <span><h2>Tạo tài khoản</h2></span>
@@ -99,21 +99,21 @@
     </section>
     <!-- jQuery library -->
     <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script> -->
-    <script src="js/jquery.min.js"></script>
+    <script src="{{ url_for('static',filename='js/jquery.min.js')}}"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.js"></script>
+    <script src="{{ url_for('static',filename='js/bootstrap.js')}}"></script>
     <!-- slick slider -->
-    <script type="text/javascript" src="js/slick.js"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/slick.js')}}"></script>
     <!-- Price picker slider -->
-    <script type="text/javascript" src="js/nouislider.js"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/nouislider.js')}}"></script>
     <!-- mixit slider -->
-    <script type="text/javascript" src="js/jquery.mixitup.js"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/jquery.mixitup.js')}}"></script>
     <!-- Add fancyBox -->
-    <script type="text/javascript" src="js/jquery.fancybox.pack.js"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/jquery.fancybox.pack.js')}}"></script>
     <!-- Custom js -->
-    <script src="js/custom.js"></script>
+    <script src="{{ url_for('static',filename='js/custom.js')}}"></script>
     <!-- my script -->
-    <script src="js/script.js"></script>
+    <script src="{{ url_for('static',filename='js/script.js')}}"></script>
 </body>
 
 </html>
