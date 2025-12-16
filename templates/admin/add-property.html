@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm bất động sản</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/admin__base.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/base.css' )}}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        .content--add-property {
+            width: 900px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+        }
+        h1{
+        font-size : 2rem;
+        }
+        h2 {
+            margin-top: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            font-size : 1.8rem;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-size : 1.6rem;
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        textarea {
+            min-height: 100px;
+        }
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+        .row .form-group {
+            flex: 1;
+        }
+        button {
+            background: #007bff;
+            color: #fff;
+            padding: 10px 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin">
+
+    {% include 'admin/header.html' %}
+
+
+
+        <div class="container">
+            {% include 'admin/sidebar.html' %}
+
+    <div class="content--add-property">
+
+    <h1>Thêm bất động sản</h1>
+
+    <form method="POST" action="/admin/properties/create" enctype="multipart/form-data">
+
+        <!-- ================= THÔNG TIN CƠ BẢN ================= -->
+        <h2>Thông tin cơ bản</h2>
+
+        <div class="form-group">
+            <label>Tiêu đề *</label>
+            <input type="text" name="title" required>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label>Giá (VNĐ)</label>
+                <input type="number" name="price" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label>Loại bất động sản</label>
+                <select name="type_id">
+                    {% for t in property_types %}
+                        <option value="{{ t.id }}">{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Địa chỉ ngắn</label>
+            <input type="text" name="address">
+        </div>
+
+        <!-- ================= VỊ TRÍ ================= -->
+        <h2>Vị trí</h2>
+
+        <div class="row">
+            <div class="form-group">
+                <label>Tỉnh / Thành phố</label>
+                <select name="province_id" id="province">
+                    <option value="">-- Chọn tỉnh --</option>
+                    {% for p in provinces %}
+                        <option value="{{ p.id }}">{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Quận / Huyện</label>
+                <select name="district_id" id="district">
+                    <option value="">-- Chọn huyện --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Phường / Xã</label>
+                <select name="ward_id" id="ward">
+                    <option value="">-- Chọn xã --</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ================= CHI TIẾT ================= -->
+        <h2>Mô tả chi tiết</h2>
+
+        <div class="form-group">
+            <label>Tổng quan</label>
+            <textarea name="overview"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Tiện ích</label>
+            <textarea name="utilities"></textarea>
+        </div>
+
+        <!-- ================= THUỘC TÍNH ================= -->
+        <h2>Thuộc tính</h2>
+
+        <div class="row">
+            <div class="form-group">
+                <label>Diện tích (m²)</label>
+                <input type="number" name="area">
+            </div>
+            <div class="form-group">
+                <label>Phòng ngủ</label>
+                <input type="number" name="bedrooms">
+            </div>
+            <div class="form-group">
+                <label>Phòng tắm</label>
+                <input type="number" name="bathrooms">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label>Số tầng</label>
+                <input type="number" name="floor">
+            </div>
+            <div class="form-group">
+                <label>Hướng nhà</label>
+                <input type="text" name="direction">
+            </div>
+            <div class="form-group">
+                <label>Pháp lý</label>
+                <input type="text" name="legal_status">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Năm xây dựng</label>
+            <input type="number" name="year_built">
+        </div>
+
+        <!-- ================= ẢNH ================= -->
+        <h2>Hình ảnh</h2>
+
+        <div class="form-group">
+            <label>Ảnh đại diện</label>
+            <input type="file" name="thumbnail">
+        </div>
+
+        <div class="form-group">
+            <label>Ảnh chi tiết (có thể chọn nhiều)</label>
+            <input type="file" name="images[]" multiple>
+        </div>
+
+        <button type="submit">Đăng bất động sản</button>
+
+    </form>
+    </div>
+
+</div>
+
+
+
+</div>
+
+
+
+</body>
+</html>

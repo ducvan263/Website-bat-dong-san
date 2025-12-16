@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodingDung | Quản lý tài khoản</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/account/admin_base.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/account/account_profile.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app">
+
+        <div class="container light-style flex-grow-1 container-p-y">
+            <!-- Header của profile -->
+            <div class="d-flex justify-content-between align-items-center py-3 mb-4 profile-head">
+                <h4 class="font-weight-bold mb-0">
+                    Quản lý tài khoản
+                </h4>
+
+                <a href="javascript:history.back()" class="btn--rollback">
+                    ← Quay lại
+                </a>
+            </div>
+
+            <div class="card overflow-hidden">
+                <div class="row no-gutters row-bordered row-border-light">
+                    <div class="col-md-3 pt-0">
+                        <div class="list-group list-group-flush account-settings-links">
+                            <a class="list-group-item list-group-item-action active" data-toggle="list"
+                                href="#account-general">Chung</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list"
+                                href="#account-change-password">Đổi mật khẩu</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list"
+                                href="#account-info">Thông tin</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list"
+                                href="#account-social-links">Mạng xã hội</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list"
+                                href="#account-connections">Kết nối</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list"
+                                href="#account-notifications">Thông báo</a>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="tab-content">
+                            <!-- Tab Chung -->
+                            <div class="tab-pane fade active show" id="account-general">
+                                <div class="card-body media align-items-center">
+                                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt
+                                        class="d-block ui-w-80">
+                                    <div class="media-body ml-4">
+                                        <label class="btn btn-outline-primary">
+                                            Tải ảnh mới
+                                            <input type="file" class="account-settings-fileinput">
+                                        </label> &nbsp;
+                                        <button type="button" class="btn btn-default md-btn-flat">Đặt lại</button>
+                                        <div class="text-light small mt-1">Cho phép JPG, GIF hoặc PNG. Kích thước tối đa 800K</div>
+                                    </div>
+                                </div>
+                                <hr class="border-light m-0">
+                                <div class="card-body">
+
+                                    <div class="form-group">
+                                        <label class="form-label">Họ và tên</label>
+                                        <input type="text" class="form-control" value="{{session.get('user_name')}}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Email</label>
+                                        <input type="text" class="form-control mb-1" value="{{session.get('user_email')}}">
+                                        <div class="alert alert-warning mt-3">
+                                            Email của bạn chưa được xác nhận. Vui lòng kiểm tra hộp thư.<br>
+                                            <a href="javascript:void(0)">Gửi lại email xác nhận</a>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Công ty</label>
+                                        <input type="text" class="form-control" value="Công ty TNHH">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab Đổi mật khẩu -->
+                            <div class="tab-pane fade" id="account-change-password">
+                                <div class="card-body pb-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Mật khẩu hiện tại</label>
+                                        <input type="password" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Mật khẩu mới</label>
+                                        <input type="password" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nhập lại mật khẩu mới</label>
+                                        <input type="password" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab Thông tin -->
+                            <div class="tab-pane fade" id="account-info">
+                                <div class="card-body pb-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Tiểu sử</label>
+                                        <textarea class="form-control"
+                                            rows="5">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris nunc arcu, dignissim sit amet sollicitudin iaculis, vehicula id urna.</textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Ngày sinh</label>
+                                        <input type="text" class="form-control" value="3/5/1995">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Quốc gia</label>
+                                        <select class="custom-select">
+                                            <option>USA</option>
+                                            <option selected>Canada</option>
+                                            <option>UK</option>
+                                            <option>Germany</option>
+                                            <option>France</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <hr class="border-light m-0">
+                                <div class="card-body pb-2">
+                                    <h6 class="mb-4">Liên hệ</h6>
+                                    <div class="form-group">
+                                        <label class="form-label">Điện thoại</label>
+                                        <input type="text" class="form-control" value="+0 (123) 456 7891">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Website</label>
+                                        <input type="text" class="form-control" value>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab Mạng xã hội -->
+                            <div class="tab-pane fade" id="account-social-links">
+                                <div class="card-body pb-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Twitter</label>
+                                        <input type="text" class="form-control" value="https://twitter.com/user">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Facebook</label>
+                                        <input type="text" class="form-control" value="https://www.facebook.com/user">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Google+</label>
+                                        <input type="text" class="form-control" value>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">LinkedIn</label>
+                                        <input type="text" class="form-control" value>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Instagram</label>
+                                        <input type="text" class="form-control" value="https://www.instagram.com/user">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab Kết nối -->
+                            <div class="tab-pane fade" id="account-connections">
+                                <div class="card-body">
+                                    <button type="button" class="btn btn-twitter">Kết nối với <strong>Twitter</strong></button>
+                                </div>
+                                <hr class="border-light m-0">
+                                <div class="card-body">
+                                    <h5 class="mb-2">
+                                        <a href="javascript:void(0)" class="float-right text-muted text-tiny"><i
+                                                class="ion ion-md-close"></i> Xóa</a>
+                                        <i class="ion ion-logo-google text-google"></i>
+                                        Bạn đã kết nối với Google:
+                                    </h5>
+                                    <a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+                                        data-cfemail="f9979498818e9c9595b994989095d79a9694">[email&#160;protected]</a>
+                                </div>
+                                <hr class="border-light m-0">
+                                <div class="card-body">
+                                    <button type="button" class="btn btn-facebook">Kết nối với <strong>Facebook</strong></button>
+                                </div>
+                                <hr class="border-light m-0">
+                                <div class="card-body">
+                                    <button type="button" class="btn btn-instagram">Kết nối với <strong>Instagram</strong></button>
+                                </div>
+                            </div>
+
+                            <!-- Tab Thông báo -->
+                            <div class="tab-pane fade" id="account-notifications">
+                                <div class="card-body pb-2">
+                                    <h6 class="mb-4">Hoạt động</h6>
+                                    <div class="form-group">
+                                        <label class="switcher">
+                                            <input type="checkbox" class="switcher-input" checked>
+                                            <span class="switcher-indicator">
+                                                <span class="switcher-yes"></span>
+                                                <span class="switcher-no"></span>
+                                            </span>
+                                            <span class="switcher-label">Gửi email khi ai đó bình luận bài viết của tôi</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="switcher">
+                                            <input type="checkbox" class="switcher-input" checked>
+                                            <span class="switcher-indicator">
+                                                <span class="switcher-yes"></span>
+                                                <span class="switcher-no"></span>
+                                            </span>
+                                            <span class="switcher-label">Gửi email khi ai đó trả lời chủ đề của tôi</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="switcher">
+                                            <input type="checkbox" class="switcher-input">
+                                            <span class="switcher-indicator">
+                                                <span class="switcher-yes"></span>
+                                                <span class="switcher-no"></span>
+                                            </span>
+                                            <span class="switcher-label">Gửi email khi ai đó theo dõi tôi</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <hr class="border-light m-0">
+                                <div class="card-body pb-2">
+                                    <h6 class="mb-4">Ứng dụng</h6>
+                                    <div class="form-group">
+                                        <label class="switcher">
+                                            <input type="checkbox" class="switcher-input" checked>
+                                            <span class="switcher-indicator">
+                                                <span class="switcher-yes"></span>
+                                                <span class="switcher-no"></span>
+                                            </span>
+                                            <span class="switcher-label">Tin tức và thông báo</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="switcher">
+                                            <input type="checkbox" class="switcher-input">
+                                            <span class="switcher-indicator">
+                                                <span class="switcher-yes"></span>
+                                                <span class="switcher-no"></span>
+                                            </span>
+                                            <span class="switcher-label">Cập nhật sản phẩm hàng tuần</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="switcher">
+                                            <input type="checkbox" class="switcher-input" checked>
+                                            <span class="switcher-indicator">
+                                                <span class="switcher-yes"></span>
+                                                <span class="switcher-no"></span>
+                                            </span>
+                                            <span class="switcher-label">Tổng hợp blog hàng tuần</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-right mt-3">
+                <button type="button" class="btn btn-primary">Lưu thay đổi</button>&nbsp;
+                <button type="button" class="btn btn-default">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
