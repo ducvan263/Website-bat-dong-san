@@ -10,8 +10,8 @@
             <div class="grid nav__container">
 
                 <div class="nav__logo">
-                    <a href="/html/admin/admin_home.html" class="nav__logo-link">
-                        <img src="/asserts/img/brand-logo@2x.png" alt="" class="nav-logo__img">
+                    <a href="/admin" class="nav__logo-link">
+                        <img src="{{ url_for('static',filename='/img/wealthuring_bannerUpdate-removebg.png' ) }}" alt="" class="nav-logo__img">
                     </a>
                 </div>
 
@@ -21,12 +21,12 @@
                             <div class="nav__admin-icon">
                                 <i class="fa-regular fa-user"></i>
                             </div>
-                            Admin
+                            {{ session.get('user_name') }}
 
                             <div class="nav__form-admin">
                                 <ul class="form-admin__list">
                                     <li class="form-admin__item">
-                                        <a href="/" class="form-admin__item-link">
+                                        <a href="{{ url_for('auth.logout') }}" class="form-admin__item-link">
                                             <i class="fa-solid fa-right-from-bracket"></i>
                                             <span class="form-admin__link-title">Đăng xuất</span>
                                         </a>

@@ -3,6 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style>
+.aa-header-right {
+    position: relative;
+    display: inline-block;
+}
+
+.account-dropdown {
+    position: relative;
+    cursor: pointer;
+}
+
+.account-name {
+    font-weight: bold;
+}
+
+.account-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    min-width: 180px;
+    z-index: 9999;
+    border-radius : 5px;
+}
+
+.account-menu a {
+    display: block;
+    padding: 10px 15px ;
+    color: #333;
+    text-decoration: none;
+    text-align : left;
+}
+
+.account-menu a:hover {
+    background-color: #f0f0f0;
+}
+
+.account-dropdown:hover .account-menu {
+    display: block;
+}
+.account-menu--logout:hover{
+        color : red;
+}
+.account-name{
+    font-size : 1.4rem;
+    color : white;
+    font-weight : 400;
+}
+        .account-chatbot{
+        margin-right : 15px;
+        }
+.account-chatbot {
+    position: relative;
+    font-size: 1.4rem;
+    color: white;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+/* Dùng ::before để tạo chữ AI phía trên */
+.account-chatbot::before {
+    content: "AI";
+    position: absolute;
+    top: -0.3em;  /* khoảng cách phía trên */
+    left: -3px;    /* canh giữa */
+    transform: translateX(-50%);
+    font-size: 1rem;
+    font-weight: bold;
+    color: #00ffcc;  /* màu nổi bật */
+}
+
+
+    </style>
 </head>
 <body>
     <!-- Pre Loader -->
@@ -31,22 +107,27 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 col-sm-6 col-xs-6">
-                                    <div class="aa-header-right">
-                                        {% if session.get('user_id') %}
-                                            <span>Xin chào, {{ session.get('user_name') }}</span>
-
-                                            <div class="account__action">
-                                                <a href="{{ url_for('account') }}">Quản lý tài khoản</a>
-
-                                                <a href="{{ url_for('auth.logout')}}" class="">Đăng xuất</a>
-
-                                            </div>
-
-                                        {% else %}
-                                            <a href="{{ url_for('auth.register') }}" class="aa-register">Đăng kí</a>
-                                            <a href="{{ url_for('auth.login') }}" class="aa-login">Đăng nhập</a>
-                                        {% endif %}
-                                    </div>
+<div class="aa-header-right" style="display : flex; justify-content : end;">
+    {% if session.get('user_id') %}
+<div class="account-chatbot-wrapper">
+    <a href="{{ url_for('chat_bot') }}" class="account-chatbot account-name">ChatBot</a>
+</div>
+    <div class="account-dropdown">
+            <span class="account-name">Xin chào, {{ session.get('user_name') }} <i class="fa fa-caret-down"></i></span>
+            <div class="account-menu">
+                <a href="{{ url_for('account') }}">
+                    <i class="fa-solid fa-user-gear"></i> Quản lý tài khoản
+                </a>
+                <a class="account-menu--logout" href="{{ url_for('auth.logout') }}">
+                    <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <a href="{{ url_for('auth.register') }}" class="aa-register">Đăng kí</a>
+        <a href="{{ url_for('auth.login') }}" class="aa-login">Đăng nhập</a>
+    {% endif %}
+</div>
                                 </div>
                             </div>
                         </div>
@@ -107,6 +188,9 @@
         </section>
         <!-- End menu section -->
 
+<script>
+
+</script>
 
 </body>
 </html>

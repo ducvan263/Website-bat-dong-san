@@ -9,7 +9,6 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        # Giả sử UserService có phương thức xác thực user
         user = UserService.get_user_by_email(email)
         if user and user.password_hash == password:  # demo, sau này hash password
             session['user_id'] = user.id
@@ -38,10 +37,10 @@ def register():
             user = UserService.create_user(name,email,None,password)
             return redirect('/login')
         return redirect('/login')
-    return render_template('register.html')
+    return render_template('signup.html')
 
 
 @auth_bp.route('/logout')
 def logout():
     session.clear()
-    return redirect('/login')
+    return redirect('/')
