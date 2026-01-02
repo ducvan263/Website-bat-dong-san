@@ -1,31 +1,59 @@
 <!DOCTYPE html>
-<!-- Coding By CodingNepal - www.codingnepalweb.com -->
 <html lang="en" dir="ltr">
-  <head>
+<head>
     <meta charset="utf-8">
-    <title>ChatGPT Clone in JavaScript | CodingNepal</title>
+    <title>AI Chatbot | Modern UI</title>
     <link rel="stylesheet" href="{{ url_for('static',filename='css/chatbot.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Google Fonts Link For Icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script src="{{ url_for('static',filename='js/chatbot.js') }}" defer></script>
-  </head>
-  <body>
-    <!-- Chats container -->
-    <div class="chat-container"></div>
-
-    <!-- Typing container -->
-    <div class="typing-container">
-      <div class="typing-content">
-        <div class="typing-textarea">
-          <textarea id="chat-input" spellcheck="false" placeholder="Enter a prompt here" required></textarea>
-          <span id="send-btn" class="material-symbols-rounded">send</span>
+</head>
+<body>
+<header class="chat-header">
+    <div class="header-content">
+        <div class="header-left">
+            <a href="javascript:history.back()" class="back-btn">
+                <span class="material-symbols-rounded">arrow_back_ios</span>
+                <span>Quay lại</span>
+            </a>
         </div>
-        <div class="typing-controls">
-          <span id="theme-btn" class="material-symbols-rounded">light_mode</span>
-          <span id="delete-btn" class="material-symbols-rounded">delete</span>
-      </div>
+        <div class="header-center">
+            <div class="project-info">
+<!--                <img src="{{ url_for('static',filename='/img/wealthuring_bannerUpdate-removebg.png')}}" alt="Logo">-->
+                <div>
+                    <span class="project-name">Wealthuring</span>
+                    <span class="status-dot">Chatbot</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="material-symbols-rounded">call</span>
+            <span class="material-symbols-rounded">more_vert</span>
+        </div>
     </div>
+</header>
 
-  </body>
+<main class="chat-container">
+    <main class="chat-container">
+        <div class="default-text">
+            <h1>Gemini AI</h1>
+            <p>Tôi có thể giúp gì cho bạn hôm nay?</p>
+        </div>
+    </main>
+</main>
+
+    <footer class="typing-container">
+        <div class="typing-content">
+            <div class="typing-textarea">
+                <textarea id="chat-input" spellcheck="false" placeholder="Nhập câu hỏi tại đây..." required></textarea>
+                <span id="send-btn" class="material-symbols-rounded">send</span>
+            </div>
+            <div class="typing-controls">
+                <span id="theme-btn" class="material-symbols-rounded">dark_mode</span>
+                <span id="delete-btn" class="material-symbols-rounded">delete</span>
+            </div>
+        </div>
+        <p class="disclaimer">AI có thể đưa ra câu trả lời không chính xác. Hãy kiểm tra lại các thông tin quan trọng.</p>
+    </footer>
+</body>
 </html>

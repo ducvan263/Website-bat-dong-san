@@ -52,12 +52,16 @@
                         <label>Giá niêm yết (VNĐ)</label>
                         <input type="number" name="price">
                     </div>
+
                     <div class="form-group">
-                        <label>Loại bất động sản</label>
-                        <select id="house_type">
-                            {% for t in property_types %}
-                            <option>{{ t.name }}</option>
-                            {% endfor %}
+                        <label>Loại hình nhà ở</label>
+                        <select name="Loại hình nhà ở" id="house_type">
+<!--                            {% for t in property_types %}-->
+<!--                            <option value="{{ t.name }}">{{ t.name }}</option>-->
+<!--                            {% endfor %}-->
+
+                                <option value="Nhà mặt phố">Nhà mặt phố</option>
+                                <option value="Nhà ngõ,hẻm">Nhà ngõ,hẻm</option>
                         </select>
                     </div>
                 </div>
@@ -84,35 +88,45 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-group">
+                        <label>Giấy tờ pháp lý</label>
+                        <select name="Giấy tờ pháp lý">
+                            <option value="Sổ đỏ/ Sổ hồng">Sổ đỏ / Sổ hồng</option>
+                            <option value="Giấy tay">Giấy tay</option>
+                            <option value="Đang chờ sổ">Đang chờ sổ</option>
+                        </select>
+                    </div>
+                                <!-- ================= FEATURES ================= -->
+                    <h2>Thuộc tính</h2>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Diện tích (m²)</label>
+                            <input type="number" name="Diện tích" id="area">
+                        </div>
 
-                <!-- ================= FEATURES ================= -->
-                <h2>Thuộc tính</h2>
-                <div class="row">
-                    <div class="form-group">
-                        <label>Diện tích (m²)</label>
-                        <input type="number" id="area">
-                    </div>
-                    <div class="form-group">
-                        <label>Số phòng ngủ</label>
-                        <input type="number" id="bedrooms">
-                    </div>
-                    <div class="form-group">
-                        <label>Số tầng</label>
-                        <input type="number" id="floors">
-                    </div>
-                </div>
+                        <div class="form-group">
+                            <label>Số phòng ngủ</label>
+                            <input type="number" name="Số phòng ngủ" id="bedrooms">
+                        </div>
 
-                <!-- HCM only -->
-                <div class="row" id="hcm-fields" style="display:none">
-                    <div class="form-group">
-                        <label>Chiều ngang (m)</label>
-                        <input type="number" id="width">
+                        <div class="form-group">
+                            <label>Số tầng</label>
+                            <input type="number" name="Số tầng" id="floors">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Chiều dài (m)</label>
-                        <input type="number" id="length">
+
+                    <!-- HCM only -->
+                    <div class="row" id="hcm-fields">
+                        <div class="form-group">
+                            <label>Chiều ngang (m)</label>
+                            <input type="number" name="Chiều ngang" id="width">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Chiều dài (m)</label>
+                            <input type="number" name="Chiều dài" id="length">
+                        </div>
                     </div>
-                </div>
 
                 <!-- ================= AI ================= -->
                 <h2>🤖 Giá AI gợi ý (Chỉ áp dụng cho Hà Nội Hoặc Thành Phố Hồ Chí Minh)</h2>
@@ -198,21 +212,65 @@ district.addEventListener('change', async () => {
 function detectCity() {
     const text = province.options[province.selectedIndex]?.text || '';
 
-    if (text.includes('Hà Nội')) {
-        city.value = 'HN';
-        document.getElementById('hcm-fields').style.display = 'none';
-    }
-    else if (text.includes('Hồ Chí Minh')) {
-        city.value = 'HCM';
-        document.getElementById('hcm-fields').style.display = 'flex';
-    }
-    else {
-        city.value = '';
-        document.getElementById('hcm-fields').style.display = 'none';
-    }
 }
 
 
+</script>
+
+<script>
+function predictPrice() {
+    const provinceSelect = document.getElementById("province");
+    const districtSelect = document.getElementById("district");
+    const wardSelect = document.getElementById("ward");
+
+    const provinceName =
+        provinceSelect.options[provinceSelect.selectedIndex]?.text || "";
+
+    const districtName =
+        districtSelect.options[districtSelect.selectedIndex]?.text || "";
+
+    const wardName =
+        wardSelect.options[wardSelect.selectedIndex]?.text || null;
+
+    const data = {
+        "Tỉnh/Thành phố": provinceName,
+        "Quận": districtName,
+        "Phường": wardName,
+
+        "Loại hình nhà ở": document.getElementById("house_type").value,
+        "Giấy tờ pháp lý": document.querySelector('[name="Giấy tờ pháp lý"]').value,
+
+        "Số tầng": Number(document.getElementById("floors").value || 0),
+        "Số phòng ngủ": Number(document.getElementById("bedrooms").value || 0),
+        "Diện tích": Number(document.getElementById("area").value || 0)
+    };
+
+    // TP.HCM có chiều ngang/dài
+    if (provinceName.includes("Hồ Chí Minh")) {
+        data["Chiều ngang"] = Number(document.getElementById("width").value || 0);
+        data["Chiều dài"]  = Number(document.getElementById("length").value || 0);
+    }
+
+    console.log("📦 Data gửi AI:", data);
+
+    fetch("/api/predict-price", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(result => {
+        document.getElementById("ai_price_m2").value =
+            result.price_m2?.toLocaleString("vi-VN");
+
+        document.getElementById("ai_total_price").value =
+            result.total_price?.toLocaleString("vi-VN");
+    })
+    .catch(err => {
+        console.error("❌ Lỗi AI:", err);
+        alert("Không thể dự đoán giá AI");
+    });
+}
 </script>
 
 

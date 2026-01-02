@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Wealthuring | Home</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <!-- Favicon -->
     <!-- Favicon -->
@@ -183,68 +184,65 @@
         <!-- End slider  -->
 
 
-
     <!-- Advance Search -->
     <section id="aa-advance-search">
         <div class="container">
             <div class="aa-advance-search-area">
                 <div class="form">
                     <div class="aa-advance-search-top">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="aa-single-advance-search">
-                                    <input type="text" placeholder="Nhập dự án mà bạn muốn tìm kiếm">
+                        <form id="searchForm">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="aa-single-advance-search">
+                                        <input type="text"
+                                               name="keyword"
+                                               placeholder="Nhập dự án mà bạn muốn tìm kiếm">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <div class="aa-single-advance-search">
+                                        <select name="khu_vuc">
+                                            <option value="">Khu Vực</option>
+                                            <option value="Hà Nội">Hà Nội</option>
+                                            <option value="Hồ Chí Minh">Hồ Chí Minh</option>
+                                            <option value="Bình Dương">Bình Dương</option>
+                                            <option value="Hải Phòng">Hải Phòng</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <div class="aa-single-advance-search">
+                                        <select name="loai_hinh">
+                                            <option value="">Loại Hình</option>
+                                            <option value="Thông Tầng">Thông Tầng</option>
+                                            <option value="Áp Mái">Áp Mái</option>
+                                            <option value="Sky Villa">Sky Villa</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <div class="aa-single-advance-search">
+                                        <select name="dich_vu">
+                                            <option value="">Dịch Vụ</option>
+                                            <option value="Hồ Bơi">Hồ Bơi</option>
+                                            <option value="Phòng Gym">Phòng Gym</option>
+                                            <option value="Công Viên">Công Viên</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <div class="aa-single-advance-search">
+                                        <input class="aa-search-btn"
+                                               type="submit"
+                                               value="Tìm Kiếm">
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-2">
-                                <div class="aa-single-advance-search">
-                                    <select>
-                                   <option value="0" selected>Khu Vực</option>
-                                    <option value="1">Hà Nội</option>
-                                    <option value="2">Hồ Chí Minh</option>
-                                    <option value="3">Bình Dương</option>
-                                    <option value="4">Hải Phòng</option>
-                                    <option value="5">Quảng Ninh</option>
-                                    <option value="6">Bà Rịa-Vũng Tàu</option>
-                                    <option value="7">An Giang</option>
-                                    <option value="8">Bình Phước</option>
-                                    <option value="9">Bình Định</option>
-                                    <option value="10">Cần Thơ</option>
-                                  </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="aa-single-advance-search">
-                                    <select>
-                                    <option value="0" selected>Loại Hình</option>
-                                    <option value="1">Thông Tầng</option>
-                                    <option value="2">Áp Mái</option>
-                                    <option value="3">Thông Thường</option>
-                                    <option value="4">Văn Phòng</option>
-                                    <option value="5">Dịch Vụ</option>
-                                    <option value="6">Văn Phòng</option>
-                                    <option value="7">Sky Villa</option>
-                                  </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="aa-single-advance-search">
-                                    <select> 
-                                    <option value="0" selected>Dịch Vụ</option>
-                                    <option value="1">Hồ Bơi</option>
-                                    <option value="2">Khu Vui Chơi</option>
-                                    <option value="3">Phòng Gym</option>
-                                    <option value="4"><label>Khu Picnic</option>
-                                    <option value="5"><label>Công Viên</option>
-                                  </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="aa-single-advance-search">
-                                    <input class="aa-search-btn" type="submit" value="Tìm Kiếm">
-                                </div>
-                            </div>
-                        </div>
+                        </form>
                     </div>
                     <div class="aa-advance-search-bottom">
                         <div class="row">
@@ -280,7 +278,7 @@
     <!-- Latest property -->
     <section id="aa-latest-property">
         <div class="container">
-            <div class="row">
+            <div class="row" id="propertyList">
                 {% for p in properties %}
                 <div class="col-md-4">
                     <article class="aa-properties-item">
@@ -309,7 +307,7 @@
 
 
 
-        </div>
+        </div >
             <div class="aa-properties-content-bottom">
     <nav>
         <ul class="pagination">
@@ -431,7 +429,7 @@
     <!-- Latest blog -->
     <section id="aa-latest-blog">
         <div class="container">
-            <div class="row">
+            <div class="row" >
                 <div class="col-md-12">
                     <div class="aa-latest-blog-area">
                         <div class="aa-title">
@@ -689,6 +687,64 @@
     <!-- / Footer -->
 
 
+
+<script>
+$("#searchForm").on("submit", function (e) {
+    e.preventDefault();
+
+    $.ajax({
+        url: "/api/search",
+        type: "GET",
+        data: $(this).serialize(),
+        success: function (res) {
+            let html = "";
+
+            if (!res.data || res.data.length === 0) {
+                html = "<p>Không có kết quả</p>";
+            } else {
+                res.data.forEach(p => {
+                    html += `
+                    <div class="col-md-4">
+                        <article class="aa-properties-item">
+                            <a href="/property/${p.id}" class="aa-properties-item-img">
+                                <img src="${p.thumbnail}" alt="img">
+                            </a>
+
+                            <div class="aa-tag for-sale">
+                                ${p.status}
+                            </div>
+
+                            <div class="aa-properties-item-content">
+                                <div class="aa-properties-about">
+                                    <h3><a href="/property/${p.id}">${p.title}</a></h3>
+                                    <p>${p.province}</p>
+                                </div>
+
+                                <div class="aa-properties-detial">
+                                    <span class="aa-price">
+                                        ${p.price_vn}
+                                    </span>
+                                    <a href="/property/${p.id}"
+                                       class="aa-secondary-btn">Xem Chi Tiết</a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                    `;
+                });
+            }
+
+            $("#propertyList").html(html);
+
+            // Ẩn phân trang khi search
+            $(".aa-properties-content-bottom").hide();
+        },
+        error: function () {
+            alert("Lỗi tìm kiếm");
+        }
+    });
+});
+</script>
 
     <!-- jQuery library -->
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
