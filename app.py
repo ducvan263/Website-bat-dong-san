@@ -11,9 +11,7 @@ import os
 # =========================
 # CONFIG
 # =========================
-GROQ_API_KEY = os.getenv(
-    "GROQ_API_KEY")
-
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
