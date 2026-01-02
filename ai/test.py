@@ -1,50 +1,69 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
-import time
-import pandas as pd
+# import pandas as pd
+#
+# df = pd.read_csv("models/housing_cleaned.csv")
+#
+# city_counts = df["Tỉnh/Thành phố"].value_counts()
+#
+# print(city_counts)
+
+import joblib
+import numpy as np
+
+# Load một lần duy nhất khi chạy chương trình
+MODEL_PATH = "models/hanoi/"
+rf = joblib.load(MODEL_PATH + "rf_price_hanoi_v2.joblib")
+scaler = joblib.load(MODEL_PATH + "scaler_hanoi_v2.joblib")
+le_type = joblib.load(MODEL_PATH + "le_type_hanoi_v2.joblib")
+le_district = joblib.load(MODEL_PATH + "le_district_hanoi_v2.joblib")
+le_ward = joblib.load(MODEL_PATH + "le_ward_hanoi_v2.joblib")
 
 
-def scrape_batdongsan_pages(num_pages=3):
-    options = Options()
-    # options.add_argument("--headless")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+def predict_price(sample: dict):
+    # Xử lý Ward Hierarchical
+    ward_full = sample["Quận"] + "_" + sample.get("Huyện", "Unknown")
 
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    # Kiểm tra xem ward này có trong bộ từ điển lúc train không
+    if ward_full not in le_ward.classes_:
+        ward_full = "Other"
 
-    data = []
+    # Encode các giá trị text
+    try:
+        type_code = le_type.transform([sample["Loại hình nhà ở"]])[0]
+        dist_code = le_district.transform([sample["Quận"]])[0]
+        ward_code = le_ward.transform([ward_full])[0]
+    except ValueError as e:
+        # Trường hợp gặp Quận hoặc Loại nhà hoàn toàn mới
+        print(f"Lỗi: Dữ liệu đầu vào chưa được học ({e})")
+        return None
 
-    for page in range(1, num_pages + 1):
-        url = f"https://batdongsan.com.vn/nha-dat-ban/p{page}"
-        driver.get(url)
-        time.sleep(20)  # đợi load trang
+    # Tạo vector input và scale
+    features = [[
+        sample["Diện tích"],
+        sample["Số tầng"],
+        sample["Số phòng ngủ"],
+        type_code,
+        dist_code,
+        ward_code
+    ]]
 
-        listings = driver.find_elements(By.CLASS_NAME, "re__card-info")
+    X_new = scaler.transform(features)
+    log_price = rf.predict(X_new)[0]
 
-        for item in listings:
-            try:
-                title = item.find_element(By.CLASS_NAME, "re__card-title").text
-                price = item.find_element(By.CLASS_NAME, "re__card-config-price").text
-                area = item.find_element(By.CLASS_NAME, "re__card-config-area").text
-                location = item.find_element(By.CLASS_NAME, "re__card-location").text
-
-                data.append({
-                    "Tiêu đề": title,
-                    "Giá": price,
-                    "Diện tích": area,
-                    "Địa điểm": location
-                })
-            except:
-                continue
-
-    driver.quit()
-    df = pd.DataFrame(data)
-    df.to_csv("batdongsan_data.csv", index=False, encoding='utf-8-sig')
-    print(f"Đã lấy được {len(data)} tin đăng từ {num_pages} trang")
+    return np.expm1(log_price)
 
 
-scrape_batdongsan_pages(3)
+# --- TEST NHANH ---
+if __name__ == '__main__':
+    my_house = {
+        "Diện tích": 46.0,
+        "Số tầng": 4,
+        "Số phòng ngủ": 5,
+        "Loại hình nhà ở": "Nhà ngõ, hẻm",
+        "Quận": "Quận Hai Bà Trưng",
+        "Huyện": "Phường Minh Khai"
+    }
+
+    result = predict_price(my_house)
+    if result:
+        print(f"Giá dự đoán: {result:,.0f} VNĐ/m²")
+        print(f"Tổng giá trị căn nhà: {(result * my_house['Diện tích']):,.0f} VNĐ")
