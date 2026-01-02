@@ -3,7 +3,6 @@ from ai.house_price_model import HousePricePredictor
 
 ai_bp = Blueprint("ai", __name__)
 
-# Khởi tạo predictor (load model 1 lần)
 predictor = HousePricePredictor()
 
 
