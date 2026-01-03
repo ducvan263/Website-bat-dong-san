@@ -7,44 +7,38 @@ const deleteButton = document.querySelector("#delete-btn");
 let userText = "";
 
 // =========================
-// LOAD LOCAL STORAGE
+// THEME
 // =========================
-const loadDataFromLocalstorage = () => {
+const loadTheme = () => {
     const themeColor = localStorage.getItem("themeColor");
-
     document.body.classList.toggle("light-mode", themeColor === "light_mode");
     themeButton.innerText = document.body.classList.contains("light-mode")
         ? "dark_mode"
         : "light_mode";
+};
+loadTheme();
 
-    const defaultText = `
-        <div class="default-text">
-            <h1>Chat Bot</h1>
-            <p>Nhập câu hỏi để bắt đầu trò chuyện.</p>
-        </div>`;
-
-    chatContainer.innerHTML =
-        localStorage.getItem("all-chats") || defaultText;
-
-    chatContainer.scrollTo(0, chatContainer.scrollHeight);
+// =========================
+// CREATE CHAT ELEMENT (GIỮ AVATAR)
+// =========================
+const createChatElement = (message, className) => {
+    const div = document.createElement("div");
+    div.className = `chat ${className}`;
+    div.innerHTML = `
+        <div class="chat-content">
+            <div class="chat-details">
+                <img src="/static/img/${className === 'outgoing' ? 'user.jpg' : 'chatbot.jpg'}">
+                <p>${message}</p>
+            </div>
+        </div>
+    `;
+    return div;
 };
 
 // =========================
-// CREATE CHAT ELEMENT
-// =========================
-const createChatElement = (content, className) => {
-    const chatDiv = document.createElement("div");
-    chatDiv.classList.add("chat", className);
-    chatDiv.innerHTML = content;
-    return chatDiv;
-};
-
-// =========================
-// CALL BACKEND (FLASK)
+// CALL BACKEND
 // =========================
 const getChatResponse = async (incomingChatDiv) => {
-    const pElement = document.createElement("p");
-
     try {
         const response = await fetch("/chat", {
             method: "POST",
@@ -54,47 +48,41 @@ const getChatResponse = async (incomingChatDiv) => {
 
         const data = await response.json();
 
-        // ✅ ĐÚNG FORMAT BACKEND
-        pElement.textContent = data.reply;
+        incomingChatDiv.querySelector(".typing-animation")?.remove();
+        incomingChatDiv.querySelector("p").textContent = data.reply;
 
-    } catch (error) {
-        console.error(error);
-        pElement.classList.add("error");
-        pElement.textContent = "Không thể kết nối AI";
+    } catch (err) {
+        incomingChatDiv.querySelector("p").textContent = "Không thể kết nối AI";
     }
 
-    incomingChatDiv.querySelector(".typing-animation")?.remove();
-    incomingChatDiv.querySelector(".chat-details").appendChild(pElement);
-
-    localStorage.setItem("all-chats", chatContainer.innerHTML);
-    chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 };
 
 // =========================
-// TYPING ANIMATION
+// TYPING ANIMATION (GIỮ AVATAR)
 // =========================
 const showTypingAnimation = () => {
-    const html = `
+    const div = document.createElement("div");
+    div.className = "chat incoming";
+    div.innerHTML = `
         <div class="chat-content">
             <div class="chat-details">
-                <img src="/static/img/chatbot.jpg" alt="bot">
+                <img src="/static/img/chatbot.jpg">
                 <div class="typing-animation">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
+                    <span></span><span></span><span></span>
                 </div>
+                <p></p>
             </div>
-        </div>`;
+        </div>
+    `;
+    chatContainer.appendChild(div);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 
-    const incomingChatDiv = createChatElement(html, "incoming");
-    chatContainer.appendChild(incomingChatDiv);
-    chatContainer.scrollTo(0, chatContainer.scrollHeight);
-
-    getChatResponse(incomingChatDiv);
+    getChatResponse(div);
 };
 
 // =========================
-// HANDLE USER MESSAGE
+// SEND USER MESSAGE
 // =========================
 const handleOutgoingChat = () => {
     userText = chatInput.value.trim();
@@ -102,18 +90,11 @@ const handleOutgoingChat = () => {
 
     chatInput.value = "";
 
-    const html = `
-        <div class="chat-content">
-            <div class="chat-details">
-                <img src="/static/img/user.jpg" alt="user">
-                <p>${userText}</p>
-            </div>
-        </div>`;
-
-    const outgoingChatDiv = createChatElement(html, "outgoing");
     chatContainer.querySelector(".default-text")?.remove();
-    chatContainer.appendChild(outgoingChatDiv);
-    chatContainer.scrollTo(0, chatContainer.scrollHeight);
+
+    const outgoing = createChatElement(userText, "outgoing");
+    chatContainer.appendChild(outgoing);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 
     setTimeout(showTypingAnimation, 300);
 };
@@ -121,21 +102,7 @@ const handleOutgoingChat = () => {
 // =========================
 // EVENTS
 // =========================
-deleteButton.addEventListener("click", async () => {
-    if (confirm("Xóa toàn bộ lịch sử chat?")) {
-        await fetch("/reset-chat", { method: "POST" });
-        localStorage.removeItem("all-chats");
-        loadDataFromLocalstorage();
-    }
-});
-
-themeButton.addEventListener("click", () => {
-    document.body.classList.toggle("light-mode");
-    localStorage.setItem("themeColor", themeButton.innerText);
-    themeButton.innerText = document.body.classList.contains("light-mode")
-        ? "dark_mode"
-        : "light_mode";
-});
+sendButton.addEventListener("click", handleOutgoingChat);
 
 chatInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -144,6 +111,24 @@ chatInput.addEventListener("keydown", (e) => {
     }
 });
 
-sendButton.addEventListener("click", handleOutgoingChat);
+themeButton.addEventListener("click", () => {
+    document.body.classList.toggle("light-mode");
+    localStorage.setItem(
+        "themeColor",
+        document.body.classList.contains("light-mode")
+            ? "light_mode"
+            : "dark_mode"
+    );
+});
 
-loadDataFromLocalstorage();
+deleteButton.addEventListener("click", async () => {
+    if (!confirm("Xóa cuộc trò chuyện hiện tại?")) return;
+
+    await fetch("/reset-chat", { method: "POST" });
+    chatContainer.innerHTML = `
+        <div class="default-text">
+            <h1>AI Chatbot</h1>
+            <p>Tôi có thể giúp gì cho bạn hôm nay?</p>
+        </div>
+    `;
+});

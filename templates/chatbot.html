@@ -48,11 +48,11 @@
         <ul class="conversation-list" id="conversation-list">
 
             {% for c in conversations %}
-            <li class="conversation-item active">
-                <span class="title">{{c.title}}</span>
+            <li class="conversation-item {% if c.id == active_conversation_id %}active{% endif %}"
+                data-id="{{ c.id }}">
+                <span class="title">{{ c.title }}</span>
                 <span class="time">{{ c.last_message_at }}</span>
             </li>
-
             {% endfor %}
         </ul>
     </aside>
@@ -62,12 +62,27 @@
 
 
         <!-- CHAT -->
-        <main class="chat-container">
-            <div class="default-text">
-                <h1>AI Chatbot</h1>
-                <p>Tôi có thể giúp gì cho bạn hôm nay?</p>
+<main class="chat-container" id="chat-container">
+
+    {% if messages and messages|length > 0 %}
+        {% for m in messages %}
+        <div class="chat {{ 'outgoing' if m.sender_id == session.user_id else 'incoming' }}">
+            <div class="chat-content">
+                <div class="chat-details">
+                    <img src="/static/img/{{ 'user.jpg' if m.sender_id == session.user_id else 'chatbot.jpg' }}">
+                    <p>{{ m.message }}</p>
+                </div>
             </div>
-        </main>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="default-text">
+            <h1>AI Chatbot</h1>
+            <p>Tôi có thể giúp gì cho bạn hôm nay?</p>
+        </div>
+    {% endif %}
+
+</main>
 
         <!-- FOOTER -->
         <footer class="typing-container">
@@ -89,4 +104,105 @@
 </div>
 
 </body>
+<script>
+    const USER_ID = {{ session.get('user_id', 0) }};
+
+    document.querySelectorAll(".conversation-item").forEach(item => {
+        item.addEventListener("click", async () => {
+            const conversationId = item.dataset.id;
+
+            // UI active
+            document.querySelectorAll(".conversation-item")
+                .forEach(i => i.classList.remove("active"));
+            item.classList.add("active");
+
+            // set conversation
+            await fetch(`/set-conversation/${conversationId}`, {
+                method: "POST"
+            });
+
+            // load messages
+            const res = await fetch(`/api/conversation/${conversationId}/messages`);
+            const data = await res.json();
+
+            const chatContainer = document.getElementById("chat-container");
+            chatContainer.innerHTML = "";
+
+            if (data.data.length === 0) {
+                chatContainer.innerHTML = `
+                    <div class="default-text">
+                        <h1>AI Chatbot</h1>
+                        <p>Tôi có thể giúp gì cho bạn hôm nay?</p>
+                    </div>
+                `;
+                return;
+            }
+
+            data.data.forEach(m => {
+                const div = document.createElement("div");
+                const isUser = m.sender_id == USER_ID;
+
+                div.className = "chat " + (isUser ? "outgoing" : "incoming");
+                div.innerHTML = `
+                    <div class="chat-content">
+                        <div class="chat-details">
+                            <img src="/static/img/${isUser ? 'user.jpg' : 'chatbot.jpg'}">
+                            <p>${m.message}</p>
+                        </div>
+                    </div>
+                `;
+                chatContainer.appendChild(div);
+            });
+
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
+    });
+</script>
+<script>
+const newChatBtn = document.getElementById("new-chat-btn");
+
+newChatBtn.addEventListener("click", async () => {
+    const res = await fetch("/api/conversation/new", {
+        method: "POST"
+    });
+    const data = await res.json();
+
+    const conversationList = document.getElementById("conversation-list");
+
+    // bỏ active cũ
+    document.querySelectorAll(".conversation-item")
+        .forEach(i => i.classList.remove("active"));
+
+    // tạo item mới
+    const li = document.createElement("li");
+    li.className = "conversation-item active";
+    li.dataset.id = data.id;
+    li.innerHTML = `
+        <span class="title">${data.title}</span>
+        <span class="time">Vừa xong</span>
+    `;
+
+    // prepend lên đầu
+    conversationList.prepend(li);
+
+    // clear chat area
+    const chatContainer = document.getElementById("chat-container");
+    chatContainer.innerHTML = `
+        <div class="default-text">
+            <h1>AI Chatbot</h1>
+            <p>Tôi có thể giúp gì cho bạn hôm nay?</p>
+        </div>
+    `;
+
+    // gắn lại click event cho item mới
+    li.addEventListener("click", async () => {
+        document.querySelectorAll(".conversation-item")
+            .forEach(i => i.classList.remove("active"));
+        li.classList.add("active");
+
+        await fetch(`/set-conversation/${data.id}`, { method: "POST" });
+    });
+});
+</script>
+
 </html>

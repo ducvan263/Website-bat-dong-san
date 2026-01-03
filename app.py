@@ -1,5 +1,6 @@
+from datetime import datetime
 from flask import Flask, render_template, request, jsonify, session
-
+from models.Conversation import Conversation
 from models.Message import Message
 from routes.auth_routes import auth_bp
 from routes.admin_routes import admin_bp
@@ -79,11 +80,42 @@ def create_app():
 
     @app.route('/chat-bot')
     def chat_bot():
-        conversations = ChatService.get_conversation_list()
-        print(conversations)
+        user_id = session.get("user_id")
+
+        conversations = ChatService.get_conversation_list(user_id)
+
+        active_conversation_id = None
+        messages = []
+
+        if conversations:
+            # 🔥 lấy conversation mới nhất
+            active_conversation_id = conversations[0]["id"]
+
+            # set vào session
+            session["conversation_id"] = active_conversation_id
+
+            # load messages
+            db_messages = (
+                Message.query
+                .filter_by(conversation_id=active_conversation_id)
+                .order_by(Message.created_at)
+                .all()
+            )
+
+            messages = [
+                {
+                    "sender_id": m.sender_id,
+                    "message": m.message,
+                    "created_at": m.created_at.isoformat()
+                }
+                for m in db_messages
+            ]
+
         return render_template(
             'chatbot.html',
-            conversations=conversations
+            conversations=conversations,
+            messages=messages,
+            active_conversation_id=active_conversation_id
         )
 
     # =========================
@@ -97,20 +129,66 @@ def create_app():
         if not user_text:
             return jsonify({"reply": "Bạn chưa nhập nội dung."})
 
-        # init history
-        if "chat_history" not in session:
-            session["chat_history"] = [
-                {
-                    "role": "system",
-                    "content": "Bạn là trợ lý AI. Trả lời đúng câu hỏi, không chào lại nếu không cần."
-                }
-            ]
+        user_id = session.get("user_id")
 
-        session["chat_history"].append({
-            "role": "user",
-            "content": user_text
-        })
+        # =========================
+        # GET / CREATE CONVERSATION
+        # =========================
+        conversation_id = session.get("conversation_id")
 
+        if not conversation_id:
+            conversation = Conversation(
+                created_by=user_id,
+                created_at=datetime.utcnow(),
+                last_message_at=datetime.utcnow()
+            )
+            db.session.add(conversation)
+            db.session.commit()
+
+            session["conversation_id"] = conversation.id
+        else:
+            conversation = Conversation.query.get(conversation_id)
+
+        # =========================
+        # SAVE USER MESSAGE
+        # =========================
+        user_msg = Message(
+            conversation_id=conversation.id,
+            sender_id=user_id,
+            message=user_text
+        )
+        db.session.add(user_msg)
+
+        conversation.last_message_at = datetime.utcnow()
+        db.session.commit()
+
+        # =========================
+        # LOAD HISTORY FROM DB
+        # =========================
+        messages = [
+            {
+                "role": "system",
+                "content": "Bạn là trợ lý AI. Trả lời đúng câu hỏi, không chào lại nếu không cần."
+            }
+        ]
+
+        db_messages = (
+            Message.query
+            .filter_by(conversation_id=conversation.id)
+            .order_by(Message.created_at)
+            .limit(20)
+            .all()
+        )
+
+        for msg in db_messages:
+            messages.append({
+                "role": "assistant" if msg.sender_id == 0 else "user",
+                "content": msg.message
+            })
+
+        # =========================
+        # CALL GROQ API
+        # =========================
         try:
             response = requests.post(
                 "https://api.groq.com/openai/v1/chat/completions",
@@ -120,7 +198,7 @@ def create_app():
                 },
                 json={
                     "model": "llama-3.1-8b-instant",
-                    "messages": session["chat_history"],
+                    "messages": messages,
                     "temperature": 0.2
                 },
                 timeout=30
@@ -129,21 +207,27 @@ def create_app():
             result = response.json()
 
             if "error" in result:
-                return jsonify({
-                    "reply": f"Lỗi AI: {result['error']['message']}"
-                })
+                return jsonify({"reply": f"Lỗi AI: {result['error']['message']}"})
 
             ai_reply = result["choices"][0]["message"]["content"]
 
-            session["chat_history"].append({
-                "role": "assistant",
-                "content": ai_reply
+            # =========================
+            # SAVE AI MESSAGE
+            # =========================
+            ai_msg = Message(
+                conversation_id=conversation.id,
+                sender_id=0,  # AI
+                message=ai_reply
+            )
+            db.session.add(ai_msg)
+
+            conversation.last_message_at = datetime.utcnow()
+            db.session.commit()
+
+            return jsonify({
+                "reply": ai_reply,
+                "conversation_id": conversation.id
             })
-
-            # giới hạn lịch sử (tránh quá dài)
-            session["chat_history"] = session["chat_history"][-20:]
-
-            return jsonify({"reply": ai_reply})
 
         except Exception as e:
             return jsonify({"reply": f"Lỗi server: {str(e)}"})
@@ -153,8 +237,66 @@ def create_app():
     # =========================
     @app.route("/reset-chat", methods=["POST"])
     def reset_chat():
-        session.pop("chat_history", None)
+        conversation_id = session.get("conversation_id")
+
+        if not conversation_id:
+            return jsonify({"status": "no_conversation"})
+
+        conversation = Conversation.query.get(conversation_id)
+
+        if conversation:
+            db.session.delete(conversation)
+            db.session.commit()
+
+        session.pop("conversation_id", None)
+
+        return jsonify({"status": "deleted"})
+
+    @app.route("/api/conversation/<int:conversation_id>/messages")
+    def get_messages(conversation_id):
+        messages = (
+            Message.query
+            .filter_by(conversation_id=conversation_id)
+            .order_by(Message.created_at)
+            .all()
+        )
+
+        return jsonify({
+            "data": [
+                {
+                    "sender_id": m.sender_id,
+                    "message": m.message,
+                    "created_at": m.created_at.isoformat()
+                }
+                for m in messages
+            ]
+        })
+
+    @app.route("/set-conversation/<int:conversation_id>", methods=["POST"])
+    def set_conversation(conversation_id):
+        session["conversation_id"] = conversation_id
         return jsonify({"status": "ok"})
+
+    @app.route("/api/conversation/new", methods=["POST"])
+    def new_conversation():
+        user_id = session.get("user_id")
+
+        conversation = Conversation(
+            created_by=user_id,
+            created_at=datetime.utcnow(),
+            last_message_at=datetime.utcnow()
+        )
+        db.session.add(conversation)
+        db.session.commit()
+
+        # set conversation mới vào session
+        session["conversation_id"] = conversation.id
+
+        return jsonify({
+            "id": conversation.id,
+            "title": "Cuộc trò chuyện mới",
+            "last_message_at": conversation.created_at.isoformat()
+        })
 
     @app.route("/api/search")
     def api_search():
@@ -189,29 +331,7 @@ def create_app():
             ]
         })
 
-    @app.route("/get-all-conversation")
-    def get_all_conversation():
-        conversations = ChatService.get_all_conversation()
 
-        data = []
-        for c in conversations:
-            last_msg = (
-                Message.query
-                .filter_by(conversation_id=c.id)
-                .order_by(Message.created_at.desc())
-                .first()
-            )
-
-            data.append({
-                "conversation_id": c.id,
-                "title": last_msg.message[:50] if last_msg else "Cuộc trò chuyện mới",
-                "last_message_at": (
-                    last_msg.created_at.isoformat()
-                    if last_msg else c.created_at.isoformat()
-                )
-            })
-
-        return jsonify({"data": data})
     return app
 app = create_app()
 
