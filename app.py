@@ -1,10 +1,16 @@
 from flask import Flask, render_template, request, jsonify, session
+
+from models.Message import Message
 from routes.auth_routes import auth_bp
 from routes.admin_routes import admin_bp
 from routes.ai_routes import ai_bp
 from routes.property_routes import property_bp
 from services.property_service import PropertyService
+from services.chat_services import ChatService
 from models import db
+from models.Property import Property
+from models.Province import Province
+from models.PropertyType import PropertyType
 import requests
 import os
 
@@ -18,6 +24,7 @@ def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.secret_key = "secret_key_chatbot"
     app.config.from_pyfile('config.py')
+
 
     # =========================
     # INIT DB
@@ -72,7 +79,12 @@ def create_app():
 
     @app.route('/chat-bot')
     def chat_bot():
-        return render_template('chatbot.html')
+        conversations = ChatService.get_conversation_list()
+        print(conversations)
+        return render_template(
+            'chatbot.html',
+            conversations=conversations
+        )
 
     # =========================
     # CHAT API
@@ -144,10 +156,65 @@ def create_app():
         session.pop("chat_history", None)
         return jsonify({"status": "ok"})
 
+    @app.route("/api/search")
+    def api_search():
+        query = Property.query
+
+        keyword = request.args.get("keyword")
+        khu_vuc = request.args.get("khu_vuc")
+        loai_hinh = request.args.get("loai_hinh")
+        print(khu_vuc)
+        if keyword:
+            query = query.filter(Property.title.ilike(f"%{keyword}%"))
+
+        if khu_vuc:
+            query = query.join(Province).filter(Province.name == khu_vuc)
+
+        if loai_hinh:
+            query = query.join(PropertyType).filter(PropertyType.name == loai_hinh)
+
+        results = query.all()
+        print(results)
+        return jsonify({
+            "data": [
+                {
+                    "id": p.id,
+                    "title": p.title,
+                    "thumbnail": p.thumbnail,
+                    "status": p.status,
+                    "price_vn": p.price_vn,
+                    "province": p.province.name if p.province else ""
+                }
+                for p in results
+            ]
+        })
+
+    @app.route("/get-all-conversation")
+    def get_all_conversation():
+        conversations = ChatService.get_all_conversation()
+
+        data = []
+        for c in conversations:
+            last_msg = (
+                Message.query
+                .filter_by(conversation_id=c.id)
+                .order_by(Message.created_at.desc())
+                .first()
+            )
+
+            data.append({
+                "conversation_id": c.id,
+                "title": last_msg.message[:50] if last_msg else "Cuộc trò chuyện mới",
+                "last_message_at": (
+                    last_msg.created_at.isoformat()
+                    if last_msg else c.created_at.isoformat()
+                )
+            })
+
+        return jsonify({"data": data})
     return app
-
-
 app = create_app()
 
 if __name__ == "__main__":
+
     app.run(debug=True)

@@ -9,51 +9,84 @@
     <script src="{{ url_for('static',filename='js/chatbot.js') }}" defer></script>
 </head>
 <body>
+<div class="app">
+
 <header class="chat-header">
-    <div class="header-content">
-        <div class="header-left">
-            <a href="javascript:history.back()" class="back-btn">
-                <span class="material-symbols-rounded">arrow_back_ios</span>
-                <span>Quay lại</span>
-            </a>
-        </div>
-        <div class="header-center">
-            <div class="project-info">
-<!--                <img src="{{ url_for('static',filename='/img/wealthuring_bannerUpdate-removebg.png')}}" alt="Logo">-->
-                <div>
-                    <span class="project-name">Wealthuring</span>
-                    <span class="status-dot">Chatbot</span>
+            <div class="header-content">
+                <div class="header-left">
+                    <a href="javascript:history.back()" class="back-btn">
+                        <span class="material-symbols-rounded">arrow_back_ios</span>
+                        <span>Quay lại</span>
+                    </a>
+                </div>
+
+                <div class="header-center">
+                    <div class="project-info">
+                        <div>
+                            <span class="project-name">Wealthuring</span>
+                            <span class="status-dot">Chatbot</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <span class="material-symbols-rounded">call</span>
+                    <span class="material-symbols-rounded">more_vert</span>
                 </div>
             </div>
+        </header>
+
+<div class="app-container">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h3>Cuộc trò chuyện</h3>
+            <button id="new-chat-btn">+ Mới</button>
         </div>
-        <div class="header-right">
-            <span class="material-symbols-rounded">call</span>
-            <span class="material-symbols-rounded">more_vert</span>
-        </div>
+
+        <ul class="conversation-list" id="conversation-list">
+
+            {% for c in conversations %}
+            <li class="conversation-item active">
+                <span class="title">{{c.title}}</span>
+                <span class="time">{{ c.last_message_at }}</span>
+            </li>
+
+            {% endfor %}
+        </ul>
+    </aside>
+
+    <!-- ================= CHAT AREA ================= -->
+    <div class="chat-wrapper">
+
+
+        <!-- CHAT -->
+        <main class="chat-container">
+            <div class="default-text">
+                <h1>AI Chatbot</h1>
+                <p>Tôi có thể giúp gì cho bạn hôm nay?</p>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="typing-container">
+            <div class="typing-content">
+                <div class="typing-textarea">
+                    <textarea id="chat-input" placeholder="Nhập câu hỏi..."></textarea>
+                    <span id="send-btn" class="material-symbols-rounded">send</span>
+                </div>
+                <div class="typing-controls">
+                    <span id="theme-btn" class="material-symbols-rounded">dark_mode</span>
+                    <span id="delete-btn" class="material-symbols-rounded">delete</span>
+                </div>
+            </div>
+            <p class="disclaimer">AI có thể trả lời không chính xác.</p>
+        </footer>
+
     </div>
-</header>
+</div>
+</div>
 
-<main class="chat-container">
-    <main class="chat-container">
-        <div class="default-text">
-            <h1>Gemini AI</h1>
-            <p>Tôi có thể giúp gì cho bạn hôm nay?</p>
-        </div>
-    </main>
-</main>
-
-    <footer class="typing-container">
-        <div class="typing-content">
-            <div class="typing-textarea">
-                <textarea id="chat-input" spellcheck="false" placeholder="Nhập câu hỏi tại đây..." required></textarea>
-                <span id="send-btn" class="material-symbols-rounded">send</span>
-            </div>
-            <div class="typing-controls">
-                <span id="theme-btn" class="material-symbols-rounded">dark_mode</span>
-                <span id="delete-btn" class="material-symbols-rounded">delete</span>
-            </div>
-        </div>
-        <p class="disclaimer">AI có thể đưa ra câu trả lời không chính xác. Hãy kiểm tra lại các thông tin quan trọng.</p>
-    </footer>
 </body>
 </html>
