@@ -15,3 +15,7 @@ class User(db.Model):
 
     def __repr__(self):
         return f"<User {self.name}>"
+# 23130071 thêm vào
+is_verified = db.Column(db.Boolean, default=False)
+email_verified_at = db.Column(db.DateTime, nullable=True)
+avatar = db.Column(db.String(255), nullable=True)
