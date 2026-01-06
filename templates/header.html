@@ -110,7 +110,10 @@
 <div class="aa-header-right" style="display : flex; justify-content : end;">
     {% if session.get('user_id') %}
 <div class="account-chatbot-wrapper">
-    <a href="{{ url_for('chat_bot') }}" class="account-chatbot account-name">ChatBot</a>
+    <a href="{{ url_for('chat_bot') }}" class="account-chatbot ">ChatBot</a>
+</div>
+    <div class="account-chatbot-wrapper">
+    <a href="{{ url_for('house_price_prediction') }}" class="account-chatbot ">Dự đoán giá nhà</a>
 </div>
     <div class="account-dropdown">
             <span class="account-name">Xin chào, {{ session.get('user_name') }} <i class="fa fa-caret-down"></i></span>

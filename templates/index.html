@@ -283,22 +283,25 @@
                 <div class="col-md-4">
                     <article class="aa-properties-item">
                         <a href="#" class="aa-properties-item-img">
-<!--                            <img src="{{ url_for('static', filename=p.thumbnail  )}}" alt="img">-->
-                            <img src={{ p.thumbnail  }} alt="img">
+                            <img src="{{ url_for('static', filename=p.thumbnail  )}}" alt="img">
+<!--                            <img src={{ p.thumbnail  }} alt="img">-->
                         </a>
                         <div class="aa-tag for-sale">
                             {{ p.status }}
                         </div>
                         <div class="aa-properties-item-content">
                             <div class="aa-properties-about">
-                                <h3><a href="#">{{ p.title }}</a></h3>
-                                <p>{{ p.address }}</p>
+                                <h3 class="aa-properties-about-title"><a href="#">{{ p.title }}</a></h3>
+                                <p class="aa-properties-about-address">{{ p.address }}</p>
                             </div>
                             <div class="aa-properties-detial">
                                 <span class="aa-price">
                                     {{ p.price_vn }}
                                 </span>
-                                <a href="{{ url_for('property_detail') }}" class="aa-secondary-btn">Xem Chi Tiết</a>
+                                    <a href="{{ url_for('property_detail', property_id=p.id) }}"
+                                       class="aa-secondary-btn">
+                                        Xem Chi Tiết
+                                    </a>
                             </div>
                         </div>
                     </article>
@@ -310,32 +313,64 @@
         </div >
             <div class="aa-properties-content-bottom">
     <nav>
-        <ul class="pagination">
+<ul class="pagination">
 
-            <!-- Previous -->
-            <li class="{{ 'disabled' if current_page <= 1 }}">
-                <a href="{{ url_for('home', page=current_page-1) if current_page > 1 else '#' }}"
-                   aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
+    {# Previous #}
+    <li class="{{ 'disabled' if current_page <= 1 }}">
+        <a href="{{ url_for('home', page=current_page-1) if current_page > 1 else '#' }}">
+            &laquo;
+        </a>
+    </li>
 
-            <!-- Page numbers -->
-            {% for p in range(1, total_pages + 1) %}
-                <li class="{{ 'active' if p == current_page }}">
-                    <a href="{{ url_for('home', page=p) }}">{{ p }}</a>
-                </li>
-            {% endfor %}
+    {# Trang 1 #}
+    <li class="{{ 'active' if current_page == 1 }}">
+        <a href="{{ url_for('home', page=1) }}">1</a>
+    </li>
 
-            <!-- Next -->
-            <li class="{{ 'disabled' if current_page >= total_pages }}">
-                <a href="{{ url_for('home', page=current_page+1) if current_page < total_pages else '#' }}"
-                   aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
+    {# ... bên trái #}
+    {% if current_page > 4 %}
+        <li class="disabled"><span>...</span></li>
+    {% endif %}
 
-        </ul>
+    {# Tính start và end KHÔNG dùng max/min #}
+    {% set start = current_page - 2 %}
+    {% if start < 2 %}
+        {% set start = 2 %}
+    {% endif %}
+
+    {% set end = current_page + 2 %}
+    {% if end > total_pages - 1 %}
+        {% set end = total_pages - 1 %}
+    {% endif %}
+
+    {# Các trang ở giữa #}
+    {% for p in range(start, end + 1) %}
+        <li class="{{ 'active' if p == current_page }}">
+            <a href="{{ url_for('home', page=p) }}">{{ p }}</a>
+        </li>
+    {% endfor %}
+
+    {# ... bên phải #}
+    {% if current_page < total_pages - 3 %}
+        <li class="disabled"><span>...</span></li>
+    {% endif %}
+
+    {# Trang cuối #}
+    {% if total_pages > 1 %}
+        <li class="{{ 'active' if current_page == total_pages }}">
+            <a href="{{ url_for('home', page=total_pages) }}">{{ total_pages }}</a>
+        </li>
+    {% endif %}
+
+    {# Next #}
+    <li class="{{ 'disabled' if current_page >= total_pages }}">
+        <a href="{{ url_for('home', page=current_page+1) if current_page < total_pages else '#' }}">
+            &raquo;
+        </a>
+    </li>
+
+</ul>
+
     </nav>
 </div>
         </div>
@@ -702,6 +737,10 @@ $("#searchForm").on("submit", function (e) {
             if (!res.data || res.data.length === 0) {
                 html = "<p>Không có kết quả</p>";
             } else {
+                const params = new URLSearchParams($("#searchForm").serialize());
+                const keyword = params.get("keyword");
+
+                html = `<p>Kết quả cho: <b>${keyword}</b></p>`;
                 res.data.forEach(p => {
                     html += `
                     <div class="col-md-4">
@@ -716,8 +755,8 @@ $("#searchForm").on("submit", function (e) {
 
                             <div class="aa-properties-item-content">
                                 <div class="aa-properties-about">
-                                    <h3><a href="/property/${p.id}">${p.title}</a></h3>
-                                    <p>${p.province}</p>
+                                        <h3 class="aa-properties-about-title"><a href="#">${p.title }</a></h3>
+                                        <p class="aa-properties-about-address">${ p.address }</p>
                                 </div>
 
                                 <div class="aa-properties-detial">

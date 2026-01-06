@@ -1,19 +1,24 @@
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, session
+from sqlalchemy.sql.functions import current_user
+
 from models.Conversation import Conversation
 from models.Message import Message
 from routes.auth_routes import auth_bp
 from routes.admin_routes import admin_bp
 from routes.ai_routes import ai_bp
 from routes.property_routes import property_bp
+from services.embedding_service import EmbeddingService
 from services.property_service import PropertyService
 from services.chat_services import ChatService
+from services.review_service import ReviewService
 from models import db
 from models.Property import Property
 from models.Province import Province
 from models.PropertyType import PropertyType
 import requests
 import os
+
 
 
 # =========================
@@ -42,6 +47,8 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+        EmbeddingService.build_index()
+
 
     # =========================
     # WEB ROUTES
@@ -66,9 +73,16 @@ def create_app():
     def blog_detail_3():
         return render_template('blog-detail.html')
 
-    @app.route('/property-detail')
-    def property_detail():
-        return render_template('properties-detail.html')
+    @app.route('/property/<int:property_id>')
+    def property_detail(property_id):
+        property = PropertyService.get_property_by_id(property_id)
+
+        images = property.images if property else []
+        return render_template(
+            'properties-detail.html',
+            property=property,
+            images=images
+        )
 
     @app.route('/properties')
     def properties():
@@ -78,6 +92,36 @@ def create_app():
     def account():
         return render_template('account/account_profile.html')
 
+    @app.route('/house_price_prediction')
+    def house_price_prediction():
+        reviews = ReviewService.get_latest_reviews()
+        summary = ReviewService.get_rating_summary()
+
+        return render_template(
+            "house-price-prediction.html",
+            reviews=reviews,
+            avg_rating=summary["avg_rating"],
+            review_count=summary["review_count"]
+        )
+
+
+    @app.route("/reviews", methods=["POST"])
+    def create_review():
+        data = request.json
+        id = session.get('user_id')
+        rating = int(data.get("rating"))
+        comment = data.get("comment")
+
+        ReviewService.create_review(
+            user_id=id,
+            rating=rating,
+            comment=comment
+        )
+
+        return jsonify({
+            "success": True,
+            "message": "Đã gửi đánh giá thành công"
+        })
     @app.route('/chat-bot')
     def chat_bot():
         user_id = session.get("user_id")
@@ -118,9 +162,7 @@ def create_app():
             active_conversation_id=active_conversation_id
         )
 
-    # =========================
-    # CHAT API
-    # =========================
+
     @app.route("/chat", methods=["POST"])
     def chat():
         data = request.get_json()
@@ -144,7 +186,6 @@ def create_app():
             )
             db.session.add(conversation)
             db.session.commit()
-
             session["conversation_id"] = conversation.id
         else:
             conversation = Conversation.query.get(conversation_id)
@@ -158,20 +199,11 @@ def create_app():
             message=user_text
         )
         db.session.add(user_msg)
-
-        conversation.last_message_at = datetime.utcnow()
         db.session.commit()
 
         # =========================
-        # LOAD HISTORY FROM DB
+        # LOAD CHAT HISTORY
         # =========================
-        messages = [
-            {
-                "role": "system",
-                "content": "Bạn là trợ lý AI. Trả lời đúng câu hỏi, không chào lại nếu không cần."
-            }
-        ]
-
         db_messages = (
             Message.query
             .filter_by(conversation_id=conversation.id)
@@ -180,58 +212,35 @@ def create_app():
             .all()
         )
 
+        chat_history = []
         for msg in db_messages:
-            messages.append({
+            chat_history.append({
                 "role": "assistant" if msg.sender_id == 0 else "user",
                 "content": msg.message
             })
 
         # =========================
-        # CALL GROQ API
+        # ASK AI (RAG)
         # =========================
-        try:
-            response = requests.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {GROQ_API_KEY}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": "llama-3.1-8b-instant",
-                    "messages": messages,
-                    "temperature": 0.2
-                },
-                timeout=30
-            )
+        ai_reply = ChatService.ask_ai(user_text, chat_history)
 
-            result = response.json()
+        # =========================
+        # SAVE AI MESSAGE
+        # =========================
+        ai_msg = Message(
+            conversation_id=conversation.id,
+            sender_id=0,
+            message=ai_reply
+        )
+        db.session.add(ai_msg)
 
-            if "error" in result:
-                return jsonify({"reply": f"Lỗi AI: {result['error']['message']}"})
+        conversation.last_message_at = datetime.utcnow()
+        db.session.commit()
 
-            ai_reply = result["choices"][0]["message"]["content"]
-
-            # =========================
-            # SAVE AI MESSAGE
-            # =========================
-            ai_msg = Message(
-                conversation_id=conversation.id,
-                sender_id=0,  # AI
-                message=ai_reply
-            )
-            db.session.add(ai_msg)
-
-            conversation.last_message_at = datetime.utcnow()
-            db.session.commit()
-
-            return jsonify({
-                "reply": ai_reply,
-                "conversation_id": conversation.id
-            })
-
-        except Exception as e:
-            return jsonify({"reply": f"Lỗi server: {str(e)}"})
-
+        return jsonify({
+            "reply": ai_reply,
+            "conversation_id": conversation.id
+        })
     # =========================
     # RESET CHAT
     # =========================
@@ -322,14 +331,26 @@ def create_app():
                 {
                     "id": p.id,
                     "title": p.title,
-                    "thumbnail": p.thumbnail,
+                    "thumbnail": f"static/{p.thumbnail}",
                     "status": p.status,
                     "price_vn": p.price_vn,
-                    "province": p.province.name if p.province else ""
+                    "address": p.address,
                 }
                 for p in results
             ]
         })
+
+    @app.route('/test')
+    def test():
+        texts = []
+        property_ids = []
+        properties = PropertyService.get_all_property()
+        for p in properties:
+            texts.append(PropertyService.property_to_text(p))
+            property_ids.append(p.id)
+
+        print(texts)
+        return texts
 
 
     return app

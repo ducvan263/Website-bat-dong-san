@@ -1,5 +1,6 @@
 from datetime import datetime
-from . import db  # import db từ models/__init__.py
+from models import db
+from models.PropertyImage import PropertyImage
 
 class Property(db.Model):
     __tablename__ = 'properties'
@@ -7,6 +8,7 @@ class Property(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     type_id = db.Column(db.Integer, db.ForeignKey('property_types.id'))
+    property_type = db.relationship('PropertyType', lazy='joined')
     title = db.Column(db.String(150), nullable=False)
     thumbnail = db.Column(db.String())
     price = db.Column(db.Float())
@@ -21,6 +23,13 @@ class Property(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    images = db.relationship(
+        PropertyImage,  # ✅ class thật
+        backref="property",
+        cascade="all, delete-orphan",
+        order_by=PropertyImage.sort_order
+    )
+
     @property
     def price_vn(self):
         if self.price is None:
@@ -32,9 +41,7 @@ class Property(db.Model):
             return f"{price / 1_000_000_000:.1f} tỷ".rstrip("0").rstrip(".")
         elif price >= 1_000_000:
             return f"{price / 1_000_000:.0f} triệu"
-        else:
+        elif price > 1 :
             return f"{price:,}"
-
-    def __repr__(self):
-        return f"<Property {self.title}>"
+        return "Thỏa thuận"
 

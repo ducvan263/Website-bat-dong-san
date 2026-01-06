@@ -1,50 +1,58 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
-import time
-import pandas as pd
+import cloudscraper
+from bs4 import BeautifulSoup
+import time, random
 
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/121.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0.0.0 Safari/537.36",
+]
 
-def scrape_batdongsan_pages(num_pages=3):
-    options = Options()
-    # options.add_argument("--headless")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+scraper = cloudscraper.create_scraper(
+    browser={"browser": "chrome", "platform": "windows", "desktop": True}
+)
 
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+# 🔥 Warm-up session
+scraper.get("https://batdongsan.com.vn", timeout=10)
+time.sleep(3)
 
-    data = []
+BASE_URL = "https://batdongsan.com.vn/nha-dat-ban"
+all_posts = []
 
-    for page in range(1, num_pages + 1):
-        url = f"https://batdongsan.com.vn/nha-dat-ban/p{page}"
-        driver.get(url)
-        time.sleep(20)  # đợi load trang
+for page in range(1, 4):
+    for attempt in range(3):  # retry
+        print(f"📄 Page {page} – attempt {attempt+1}")
 
-        listings = driver.find_elements(By.CLASS_NAME, "re__card-info")
+        scraper.headers.update({
+            "User-Agent": random.choice(USER_AGENTS)
+        })
 
-        for item in listings:
-            try:
-                title = item.find_element(By.CLASS_NAME, "re__card-title").text
-                price = item.find_element(By.CLASS_NAME, "re__card-config-price").text
-                area = item.find_element(By.CLASS_NAME, "re__card-config-area").text
-                location = item.find_element(By.CLASS_NAME, "re__card-location").text
+        url = BASE_URL if page == 1 else f"{BASE_URL}/p{page}"
+        res = scraper.get(url, timeout=15)
 
-                data.append({
-                    "Tiêu đề": title,
-                    "Giá": price,
-                    "Diện tích": area,
-                    "Địa điểm": location
-                })
-            except:
-                continue
+        soup = BeautifulSoup(res.text, "html.parser")
+        items = soup.select(
+            "a.js__product-link-for-product-id, a.re__link-product"
+        )
 
-    driver.quit()
-    df = pd.DataFrame(data)
-    df.to_csv("batdongsan_data.csv", index=False, encoding='utf-8-sig')
-    print(f"Đã lấy được {len(data)} tin đăng từ {num_pages} trang")
+        if items:
+            print(f"✅ Tìm thấy {len(items)} tin")
+            break
+        else:
+            print("⚠️ Bị chặn – retry...")
+            time.sleep(random.uniform(3, 6))
 
+    for item in items:
+        link = item.get("href")
+        if not link.startswith("http"):
+            link = "https://batdongsan.com.vn" + link
 
-scrape_batdongsan_pages(3)
+        all_posts.append({
+            "title": item.get("title"),
+            "link": link
+        })
+
+    time.sleep(random.uniform(2, 5))
+
+print("✅ Hoàn tất!")
+print(f"📦 Tổng số tin: {len(all_posts)}")

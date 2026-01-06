@@ -58,34 +58,33 @@ class HousePricePredictor:
         return float(np.expm1(y)[0])
 
 
-# --- ĐOẠN CODE ĐỂ TEST ---
-
-# 1. Khởi tạo predictor
-predictor = HousePricePredictor()
-
-# 2. Dữ liệu test Hà Nội
-test_hn = {
-    "Tỉnh/Thành phố": "Hà Nội",
-    "Quận": "Cầu Giấy",
-    "Phường": "Dịch Vọng",
-    "Loại hình nhà ở": "Nhà mặt phố",
-    "Giấy tờ pháp lý": "Sổ đỏ/ Sổ hồng",
-    "Số tầng": 5,
-    "Số phòng ngủ": 4,
-    "Diện tích": 50
-}
-
-# 3. Dữ liệu test tỉnh khác
-test_tinh = {
-    "Tỉnh/Thành phố": "TP. Hồ Chí Minh",
-    "Quận": "Quận 1",
-    "Loại hình nhà ở": "Nhà ngõ, hẻm",
-    "Giấy tờ pháp lý": "Sổ đỏ/ Sổ hồng",
-    "Số tầng": 2,
-    "Số phòng ngủ": 2,
-    "Diện tích": 40
-}
+#
+# # 1. Khởi tạo predictor
+# predictor = HousePricePredictor()
+#
+# # 2. Dữ liệu test Hà Nội
+# test_hn = {
+#     "Tỉnh/Thành phố": "Hà Nội",
+#     "Quận": "Cầu Giấy",
+#     "Phường": "Dịch Vọng",
+#     "Loại hình nhà ở": "Nhà mặt phố",
+#     "Giấy tờ pháp lý": "Sổ đỏ/ Sổ hồng",
+#     "Số tầng": 5,
+#     "Số phòng ngủ": 4,
+#     "Diện tích": 50
+# }
+#
+# # 3. Dữ liệu test tỉnh khác
+# test_tinh = {
+#     "Tỉnh/Thành phố": "TP. Hồ Chí Minh",
+#     "Quận": "Quận 1",
+#     "Loại hình nhà ở": "Nhà ngõ, hẻm",
+#     "Giấy tờ pháp lý": "Sổ đỏ/ Sổ hồng",
+#     "Số tầng": 2,
+#     "Số phòng ngủ": 2,
+#     "Diện tích": 40
+# }
 
 # 4. In kết quả
-print(f"Giá dự báo Hà Nội: {predictor.predict(test_hn):.2f} triệu/m2")
-print(f"Giá dự báo TP.HCM: {predictor.predict(test_tinh):.2f} triệu/m2")
+# print(f"Giá dự báo Hà Nội: {predictor.predict(test_hn):.2f} triệu/m2")
+# print(f"Giá dự báo TP.HCM: {predictor.predict(test_tinh):.2f} triệu/m2")

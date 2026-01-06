@@ -12,10 +12,10 @@ class User(db.Model):
     role = db.Column(db.Enum('user','agent','admin'), default='user')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
+    # 23130071 thêm vào
+    is_verified = db.Column(db.Boolean, default=False)
+    email_verified_at = db.Column(db.DateTime, nullable=True)
+    avatar = db.Column(db.String(255), nullable=True)
     def __repr__(self):
         return f"<User {self.name}>"
-# 23130071 thêm vào
-is_verified = db.Column(db.Boolean, default=False)
-email_verified_at = db.Column(db.DateTime, nullable=True)
-avatar = db.Column(db.String(255), nullable=True)
+

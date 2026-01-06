@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash
+from services.property_service import PropertyService
 
 admin_bp = Blueprint(
     'admin',
@@ -6,10 +7,8 @@ admin_bp = Blueprint(
     url_prefix='/admin'
 )
 
-# Hàm này chạy trước tất cả route trong admin_bp
 @admin_bp.before_request
 def check_admin_role():
-    # Nếu người dùng chưa login hoặc role không phải 'admin'
     if session.get('role') != 'admin':
         flash("Bạn không có quyền truy cập trang này.", "danger")
         return render_template('/404.html')  # chuyển về trang login hoặc trang khác
@@ -17,7 +16,11 @@ def check_admin_role():
 # Routes bình thường
 @admin_bp.route('/')
 def admin_home():
-    return render_template('admin/home-management.html')
+    properies = PropertyService.get_all_property()
+    return render_template(
+        'admin/home-management.html',
+        properties=properies,
+    )
 
 @admin_bp.route('/management')
 def admin_management():

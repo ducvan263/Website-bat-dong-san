@@ -37,7 +37,7 @@
     
     body {
         background-color: #ffffff;
-        font-family: "Open Sans", sans-serif;
+        font-family: 'Roboto', sans-serif;
         color: #333333;
         font-size: 15px;
         overflow-x: hidden;
@@ -3926,4 +3926,24 @@
             float: left;
             position: relative;
         }
+    }
+    .aa-properties-about-title{
+        font-size : 1.6rem;
+        font-weight : 550;
+        display : -webkit-box;
+        -webkit-line-clamp: 2;      /* số dòng tối đa */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        color : #2C2C2C;
+        line-height : 1.6rem;
+        min-height : 32px;
+    }
+    .aa-properties-about-address{
+        font-size : 1.4rem;
+        display : -webkit-box;
+        -webkit-line-clamp: 2;      /* số dòng tối đa */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height : 1.4rem;
+        min-height : 28px;
     }

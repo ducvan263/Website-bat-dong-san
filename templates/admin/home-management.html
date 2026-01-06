@@ -91,12 +91,22 @@
                     <tr>
                         <th>ID</th>
                         <th>Tên bài đăng</th>
+                        <th>Người đăng</th>
                         <th>Ngày đăng</th>
                         <th>Thao tác</th>
                     </tr>
                     </thead>
 
                     <tbody>
+                    {% for p in properties%}
+                        <tr>
+                            <td>{{p.id}}</td>
+                            <td>{{p.title}}</td>
+                            <td>{{p.user_id}}</td>
+                            <td>{{p.created_at}}</td>
+                            <td>hi</td>
+                        </tr>
+                    {%endfor%}
                     </tbody>
                 </table>
 

@@ -1,7 +1,10 @@
 from models.Conversation import Conversation
 from models.Message import Message
 from models import db
+from services.rag_service import RAGService
 from sqlalchemy import func, and_
+import requests
+import os
 
 class ChatService:
 
@@ -54,3 +57,49 @@ class ChatService:
             })
 
         return result
+
+    @staticmethod
+    def ask_ai(user_text, chat_history):
+        """
+        Gọi Groq API với context từ DB
+        """
+        GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+        context = RAGService.build_context(user_text)
+        system_prompt = RAGService.build_system_prompt(context)
+
+        messages = [
+            {
+                "role": "system",
+                "content": system_prompt
+            }
+        ]
+
+        # Lịch sử chat (tối đa 10 tin gần nhất)
+        for msg in chat_history[-10:]:
+            messages.append(msg)
+
+        messages.append({
+            "role": "user",
+            "content": user_text
+        })
+
+        response = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {GROQ_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "llama-3.1-8b-instant",
+                "messages": messages,
+                "temperature": 0.2
+            },
+            timeout=30
+        )
+
+        result = response.json()
+
+        if "error" in result:
+            return "Lỗi AI: " + result["error"]["message"]
+
+        return result["choices"][0]["message"]["content"]

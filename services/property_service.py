@@ -24,3 +24,25 @@ class PropertyService:
             "current_page": page
         }
 
+    @staticmethod
+    def property_to_text(p: Property):
+        purpose = "Giá bán" if p.status == "selling" else "Giá thuê"
+        price = p.price_vn if p.price else "Chưa rõ"
+        type_name = p.property_type.name if p.property_type else "Bất động sản"
+
+        return (
+            f"{p.title}. "
+            f"Loại hình {type_name}. "
+            f"Vị trí {p.address}. "
+            f"{purpose} {price}."
+        )
+
+
+    @staticmethod
+    def get_latest_properties(limit=10):
+        return (
+            Property.query
+            .order_by(Property.created_at.desc())
+            .limit(limit)
+            .all()
+        )

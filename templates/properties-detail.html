@@ -76,15 +76,13 @@
             <!-- Start properties content body -->
             <div class="aa-properties-details">
              <div class="aa-properties-details-img">
-               <img src="{{ url_for('static',filename='img/slider/overview(1).jpg')}}" alt="img">
-               <img src="{{ url_for('static',filename='img/slider/living_1.jpg')}}" alt="img">
-               <img src="{{ url_for('static',filename='img/slider/kitchen_1.jpg')}}" alt="img">
-               <img src="{{ url_for('static',filename='img/slider/bed_1.jpg')}}" alt="img">
-               <img src="{{ url_for('static',filename='img/slider/bath_1.jpg')}}" alt="img">
+                 {% for img in images %}
+               <img src="{{ url_for('static',filename=img.url)}}" alt="img">
+                 {% endfor %}
              </div>
              <div class="aa-properties-info">
-               <h2>Akari City</h2>
-               <span class="aa-price">2,7 tỷ</span>
+               <h2>{{ property.title }}</h2>
+               <span class="aa-price">{{ property.price_vn }}</span>
                <h4>Tổng Quan</h4>
                <ul>
                  <li>Loại Hình: Thông Thường</li>
@@ -93,7 +91,7 @@
                  <li>2 Phòng Tắm</li>
                  <li>1 Nhà Bếp</li>
                </ul>
-               <h4>Tiện Ích Của Akari City</h4>
+               <h4>Tiện Ích</h4>
                <ul>
                 <li>Hồ Bơi</li>
                 <li>Khu Vui Chơi Trẻ Em</li>
