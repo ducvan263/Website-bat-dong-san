@@ -1,7 +1,7 @@
 # MySQL configuration
 MYSQL_HOST = "localhost"
 MYSQL_USER = "root"
-MYSQL_PASSWORD = ""
+MYSQL_PASSWORD = "123456"
 MYSQL_DB = "batdongsan"
 
 # Nếu dùng SQLAlchemy

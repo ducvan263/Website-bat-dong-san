@@ -19,3 +19,22 @@ class UserService:
         db.session.commit()
         return user
     # ... các method khác tương tự
+    @staticmethod
+    def create_user(name, email=None, phone=None, password_hash=None, role='user'):
+        user = User(name=name, email=email, phone=phone, password_hash=password_hash, role=role)
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    @staticmethod
+    def update_profile(user_id, name, email, company, phone=None):
+        user = User.query.get(user_id)
+        if user:
+            user.name = name
+            user.email = email
+            user.company = company
+            if phone:
+                user.phone = phone
+            db.session.commit()
+            return user
+        return None
