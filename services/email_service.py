@@ -1,28 +1,39 @@
-from itsdangerous import URLSafeTimedSerializer
+import secrets
 from flask import current_app
 from flask_mail import Message
-from app import mail
+from models import db
+from models.User import User
 
-def generate_verify_token(email):
-    s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-    return s.dumps(email, salt='email-verify')
+def generate_verification_token():
+    """Tạo token xác thực ngẫu nhiên"""
+    return secrets.token_urlsafe(32)
 
-def verify_token(token, expiration=3600):
-    s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-    try:
-        email = s.loads(token, salt='email-verify', max_age=expiration)
-        return email
-    except:
-        return None
+def send_verification_email(user):
+    """
+    Gửi email xác nhận đến user.
+    Sử dụng current_app để lấy mail từ app factory.
+    """
+    token = generate_verification_token()
+    user.verification_token = token
+    db.session.commit()
 
-def send_verify_email(user):
-    token = generate_verify_token(user.email)
-    link = f"http://localhost:5000/verify-email/{token}"
+    # Lấy mail object từ current_app
+    mail = current_app.extensions.get('mail')
+    if not mail:
+        raise RuntimeError("Flask-Mail chưa được khởi tạo!")
+
+    # Lấy URL base app từ request context
+    from flask import request
+    app_url = request.host_url.rstrip('/')  # ví dụ: http://localhost:5000
+
+    verify_url = f"{app_url}/email/verify_email/{token}"
 
     msg = Message(
-        "Xác thực email",
+        subject="Xác nhận email",
+        sender=current_app.config.get('MAIL_USERNAME'),
         recipients=[user.email],
-        body=f"Bấm vào link để xác thực email: {link}"
+        body=f"Xin chào {user.email},\n\n"
+             f"Vui lòng nhấp vào link sau để xác nhận email:\n{verify_url}\n\nCảm ơn!"
     )
-    mail.send(msg)
 
+    mail.send(msg)

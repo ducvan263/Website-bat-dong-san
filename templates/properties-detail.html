@@ -38,7 +38,89 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-  
+<style>
+/* Nền modal */
+.modal {
+    display: none; /* Ẩn mặc định */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* nếu nội dung cao hơn màn hình */
+    background-color: rgba(0, 0, 0, 0.6); /* nền mờ */
+    transition: opacity 0.3s ease;
+}
+
+/* Nội dung popup */
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto; /* canh giữa màn hình */
+    padding: 30px 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px; /* responsive */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    text-align: center;
+    position: relative;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Hiệu ứng xuất hiện */
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+/* Nút đóng */
+.close {
+    color: #888;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close:hover {
+    color: #333;
+}
+
+/* Nội dung thông báo */
+.modal-content p {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Nút đăng nhập */
+.btn-login {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff; /* xanh web chuẩn */
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive: giảm margin top trên màn hình nhỏ */
+@media (max-width: 480px) {
+    .modal-content {
+        margin-top: 20%;
+        padding: 20px 15px;
+    }
+}
+</style>
+
 
   </head>
   <body class="aa-price-range">  
@@ -98,6 +180,33 @@
                 <li>Phòng Tập Gym</li>
                 <li>Khu Picnic</li>
                </ul>
+<div class="contact_info">
+    <h4>Thông tin liên hệ</h4>
+
+    <h5>Số điện thoại:</h5>
+    <span class="contact--phone-number hidden-contact
+    {% if not session.get('user_id') %}hidden-login
+    {% elif session.get('is_verified') == False %}hidden-verify
+    {% endif %}">
+    {% if session.get('user_id') and session.get('is_verified') %}
+        {{ property.user.phone }}
+    {% else %}
+        ******
+    {% endif %}
+</span>
+
+    <h5>Email:</h5>
+   <span class="contact--email hidden-contact
+    {% if not session.get('user_id') %}hidden-login
+    {% elif session.get('is_verified') == False %}hidden-verify
+    {% endif %}">
+    {% if session.get('user_id') and session.get('is_verified') %}
+        {{ property.user.email }}
+    {% else %}
+        ***@gmail.com
+    {% endif %}
+</span>
+</div>
               <h4>Xem Bản Đồ</h4>
               <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.6935321652954!2d106.57749481380776!3d10.758085841568231!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752d96bf0b6423%3A0x2a8e0403a6e5509c!2zQsOsbmggVMOibg!5e0!3m2!1svi!2s!4v1666455941588!5m2!1svi!2s" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
              </div>
@@ -279,6 +388,25 @@
         </div>
       </div>
     </div>
+     <!-- Modal đăng nhập -->
+<div id="loginModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>Vui lòng đăng nhập để xem thông tin liên hệ!</p>
+    <a href="{{ url_for('auth.login') }}" class="btn-login">Đăng nhập</a>
+  </div>
+</div>
+
+<!-- Modal xác thực email -->
+<div id="verifyModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>Vui lòng xác thực email để xem thông tin liên hệ!</p>
+    <a href="{{ url_for('account') }}" class="btn-login">Chuyển tới trang xác thực</a>
+  </div>
+</div>
+
+
   </section>
   <!-- / Properties  -->
 
@@ -327,6 +455,48 @@
     </footer>
   </section>
   <!-- / Footer -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const contacts = document.querySelectorAll('.hidden-contact');
+    const loginModal = document.getElementById('loginModal');
+    const verifyModal = document.getElementById('verifyModal');
+
+    contacts.forEach(el => {
+        el.addEventListener('click', () => {
+            const isLoggedIn = {{ 'true' if session.get('user_id') else 'false' }};
+            const isVerified = {{ 'true' if session.get('is_verified') else 'false' }};
+
+            if (!isLoggedIn) {
+                loginModal.style.display = 'block';
+            } else if (!isVerified) {
+                verifyModal.style.display = 'block';
+            }
+            // Nếu đã đăng nhập và xác thực → hiển thị thông tin, không cần popup
+        });
+    });
+
+    // Đóng modal
+    document.querySelectorAll('.modal .close').forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.closest('.modal').style.display = 'none';
+        });
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === loginModal) loginModal.style.display = 'none';
+        if (e.target === verifyModal) verifyModal.style.display = 'none';
+    });
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            loginModal.style.display = 'none';
+            verifyModal.style.display = 'none';
+        }
+    });
+});
+</script>
+
 
   <!-- jQuery library -->
   <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script> -->

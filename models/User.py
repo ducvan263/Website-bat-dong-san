@@ -16,6 +16,7 @@ class User(db.Model):
     is_verified = db.Column(db.Boolean, default=False)
     email_verified_at = db.Column(db.DateTime, nullable=True)
     avatar = db.Column(db.String(255), nullable=True)
+    verification_token = db.Column(db.String(100), nullable=True)
     def __repr__(self):
-        return f"<User {self.name}>"
+        return f"<User {self.is_verified}>"
 

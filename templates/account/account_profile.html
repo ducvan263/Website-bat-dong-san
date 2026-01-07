@@ -49,17 +49,26 @@
                             <!-- Tab Chung -->
                             <div class="tab-pane fade active show" id="account-general">
                                 <div class="card-body media align-items-center">
-                                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt
-                                        class="d-block ui-w-80">
-                                    <div class="media-body ml-4">
-                                        <label class="btn btn-outline-primary">
-                                            Tải ảnh mới
-                                            <input type="file" class="account-settings-fileinput">
-                                        </label> &nbsp;
-                                        <button type="button" class="btn btn-default md-btn-flat">Đặt lại</button>
-                                        <div class="text-light small mt-1">Cho phép JPG, GIF hoặc PNG. Kích thước tối đa 800K</div>
-                                    </div>
-                                </div>
+    <img id="avatarPreview"
+         src="{{ session.get('user_avatar', '/static/uploads/avatars/default.png') }}"
+         class="d-block ui-w-80 rounded-circle">
+
+    <div class="media-body ml-4">
+        <label class="btn btn-outline-primary mb-2">
+            Tải ảnh mới
+            <input type="file"
+                   class="account-settings-fileinput"
+                   name="avatar"
+                   accept="image/*"
+                   hidden
+                   onchange="uploadAvatar(this)">
+        </label>
+
+        <div class="text-light small mt-1">
+            Cho phép JPG, PNG, GIF. Tối đa 800KB
+        </div>
+    </div>
+</div>
                                 <hr class="border-light m-0">
                                 <div class="card-body">
 
@@ -69,10 +78,16 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Email</label>
-                                        <input type="text" class="form-control mb-1" value="{{session.get('user_email')}}">
+                                        <input disabled type="text" class="form-control mb-1" value="{{session.get('user_email')}}">
                                         <div class="alert alert-warning mt-3">
+                                        {% if not user.is_verified %}
                                             Email của bạn chưa được xác nhận. Vui lòng kiểm tra hộp thư.<br>
-                                            <a href="javascript:void(0)">Gửi lại email xác nhận</a>
+                                            <a href="{{ url_for('email.resend_verification') }}">Gửi lại email xác nhận</a>
+                                        {% endif%}
+                                            {% if user.is_verified %}
+
+                                            Email của bạn đã được xác thực
+                                            {%endif%}
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -271,6 +286,40 @@
             </div>
         </div>
     </div>
+    <script>
+function uploadAvatar(input) {
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+
+    // kiểm tra size (800KB)
+    if (file.size > 800 * 1024) {
+        alert("Ảnh vượt quá 800KB");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    fetch("/update-avatar/{{ session.get('user_id') }}", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.avatar) {
+            document.getElementById("avatarPreview").src =
+                data.avatar + "?t=" + new Date().getTime(); // tránh cache
+        } else {
+            alert(data.error || "Upload thất bại");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Lỗi upload avatar");
+    });
+}
+</script>
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>

@@ -3947,3 +3947,27 @@
         line-height : 1.4rem;
         min-height : 28px;
     }
+
+    .contact_info {
+
+}
+
+.contact_info h4 {
+    margin-bottom: 12px;
+    font-size: 18px;
+    color: #333;
+}
+
+.contact_info h5 {
+    margin: 6px 0 4px;
+    font-size: 14px;
+    color: #555;
+}
+
+.contact--phone-number,
+.contact--email {
+    display: inline-block;
+    font-weight: bold;
+    color: #1a73e8; /* màu xanh nổi bật */
+    margin-left: 5px;
+}

@@ -24,19 +24,27 @@ class PropertyService:
             "current_page": page
         }
 
-    @staticmethod
-    def property_to_text(p: Property):
-        purpose = "Giá bán" if p.status == "selling" else "Giá thuê"
-        price = p.price_vn if p.price else "Chưa rõ"
-        type_name = p.property_type.name if p.property_type else "Bất động sản"
-
-        return (
+    def property_to_text(p: Property, include_private=False):
+        text = (
             f"{p.title}. "
-            f"Loại hình {type_name}. "
+            f"Loại hình {p.property_type.name if p.property_type else 'BĐS'}. "
             f"Vị trí {p.address}. "
-            f"{purpose} {price}."
+            f"Giá {p.price_vn}. "
         )
 
+        if include_private:
+            contact = []
+            if p.user:
+                if p.user.phone:
+                    contact.append(f"SĐT: {p.user.phone}")
+                if p.user.email:
+                    contact.append(f"Email: {p.user.email}")
+
+            link = f"http://127.0.0.1:5000/property/{p.id}"
+            text += "Liên hệ: " + ", ".join(contact) + ". "
+            text += f"Link chi tiết: {link}."
+
+        return text
 
     @staticmethod
     def get_latest_properties(limit=10):

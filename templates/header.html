@@ -162,8 +162,12 @@
                         </div>
                         <div id="navbar" class="navbar-collapse collapse">
                             <ul id="top-menu" class="nav navbar-nav navbar-right aa-main-nav">
-                                <li class="active"><a href="/">TRANG CHỦ</a></li>
-                                <li><a href="{{ url_for('properties' )}}">DỰ ÁN </a></li>
+                               <li class="{% if request.path == '/' %}active{% endif %}">
+                                    <a href="/">TRANG CHỦ</a>
+                                </li>
+                                <li class="{% if request.path.startswith('/properties') %}active{% endif %}">
+                                    <a href="{{ url_for('properties') }}">DỰ ÁN</a>
+                                </li>
                                 <!-- <li class="dropdown">
                                     <a class="dropdown-toggle" data-toggle="dropdown" href="properties.html">PROPERTIES <span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
@@ -171,8 +175,10 @@
                                         <li><a href="properties-detail.html">PROPERTIES DETAIL</a></li>
                                     </ul>
                                 </li> -->
-                                <li><a href="gallery.html">TỔNG QUAN</a></li>
-                                <li><a href="blog-archive.html">TIN TỨC</a></li>
+                                <li class="{% if request.path.startswith('/overview') %}active{% endif %}"
+                                ><a href="{{ url_for('main.overview')}}">TỔNG QUAN</a></li>
+                                <li class="{% if request.path.startswith('/blog') %}active{% endif %}"
+                                ><a href="{{ url_for('main.blog')}}">TIN TỨC</a></li>
                                 <!-- <li class="dropdown">
                                     <a class="dropdown-toggle" data-toggle="dropdown" href="blog-archive.html">BLOG <span class="caret"></span></a>
                                     <ul class="dropdown-menu" role="menu">
@@ -180,7 +186,8 @@
                                         <li><a href="blog-single.html">BLOG DETAILS</a></li>
                                     </ul>
                                 </li> -->
-                                <li><a href="contact.html">LIÊN HỆ</a></li>
+                                <li class="{% if request.path.startswith('/contact') %}active{% endif %}"
+                                ><a href="{{ url_for('main.contact')}}">LIÊN HỆ</a></li>
                                 <!-- <li><a href="404.html">404 PAGE</a></li> -->
                             </ul>
                         </div>

@@ -17,7 +17,8 @@ const loadTheme = () => {
         : "light_mode";
 };
 loadTheme();
-
+const avatarUser = document.body.dataset.avatar;
+console.log(avatarUser)
 // =========================
 // CREATE CHAT ELEMENT (GIỮ AVATAR)
 // =========================
@@ -27,7 +28,7 @@ const createChatElement = (message, className) => {
     div.innerHTML = `
         <div class="chat-content">
             <div class="chat-details">
-                <img src="/static/img/${className === 'outgoing' ? 'user.jpg' : 'chatbot.jpg'}">
+                <img src="${className === 'outgoing' ? avatarUser : '/static/img/chatbot.jpg'}">
                 <p>${message}</p>
             </div>
         </div>

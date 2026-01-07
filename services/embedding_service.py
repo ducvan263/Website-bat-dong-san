@@ -5,7 +5,7 @@ from models.Property import Property
 from services.property_service import PropertyService
 
 class EmbeddingService:
-    # model = SentenceTransformer("intfloat/multilingual-e5-base")
+    model = SentenceTransformer("intfloat/multilingual-e5-base")
     index = None
     ids = []
 
@@ -15,7 +15,10 @@ class EmbeddingService:
             Property.status.in_(["selling", "renting"])
         ).all()
 
-        texts = [PropertyService.property_to_text(p) for p in properties]
+        texts = [
+            PropertyService.property_to_text(p, include_private=False)
+            for p in properties
+        ]
         EmbeddingService.ids = [p.id for p in properties]
 
         embeddings = EmbeddingService.model.encode(

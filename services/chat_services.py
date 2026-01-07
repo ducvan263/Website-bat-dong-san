@@ -1,3 +1,5 @@
+from flask import session
+
 from models.Conversation import Conversation
 from models.Message import Message
 from models import db
@@ -64,7 +66,15 @@ class ChatService:
         Gọi Groq API với context từ DB
         """
         GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-        context = RAGService.build_context(user_text)
+        context, used_property_ids = RAGService.build_context(
+            user_text=user_text,
+            session=session
+        )
+
+        # 🔥 LƯU STATE BĐS VỪA TRUY XUẤT
+        if used_property_ids:
+            session["last_property_ids"] = used_property_ids
+
         system_prompt = RAGService.build_system_prompt(context)
 
         messages = [

@@ -15,7 +15,8 @@ def login():
             session['user_email'] = user.email
             session['user_name'] = user.name
             session['role'] = user.role
-
+            session['user_avatar'] = user.avatar
+            session['is_verified'] = user.is_verified
             if(user.role == 'admin'):
                 return redirect('/admin')
 

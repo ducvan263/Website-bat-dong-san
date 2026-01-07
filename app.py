@@ -1,17 +1,22 @@
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, session
-from sqlalchemy.sql.functions import current_user
+from flask_mail import Mail
 
-from models.Conversation import Conversation
-from models.Message import Message
+from routes.email_routes import email_bp
 from routes.auth_routes import auth_bp
 from routes.admin_routes import admin_bp
 from routes.ai_routes import ai_bp
 from routes.property_routes import property_bp
+from routes.user_routes import user_bp
+from routes.routes import main_bp
+
 from services.embedding_service import EmbeddingService
 from services.property_service import PropertyService
 from services.chat_services import ChatService
 from services.review_service import ReviewService
+
+from models.Conversation import Conversation
+from models.Message import Message
 from models import db
 from models.Property import Property
 from models.Province import Province
@@ -19,12 +24,14 @@ from models.PropertyType import PropertyType
 import requests
 import os
 
-
+from services.user_service import UserService
 
 # =========================
 # CONFIG
 # =========================
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+mail = Mail()  # chỉ tạo instance, chưa bind app
+
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -37,6 +44,15 @@ def create_app():
     # =========================
     db.init_app(app)
 
+    app.config.update(
+        MAIL_SERVER='smtp.gmail.com',
+        MAIL_PORT=587,
+        MAIL_USE_TLS=True,
+        MAIL_USERNAME='22130050@st.hcmuaf.edu.vn',
+        MAIL_PASSWORD='cvbg zvld ccta wgqj'
+    )
+    mail.init_app(app)
+
     # =========================
     # REGISTER BLUEPRINTS
     # =========================
@@ -44,10 +60,15 @@ def create_app():
     app.register_blueprint(property_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(ai_bp)
+    app.register_blueprint(user_bp)
+    app.register_blueprint(email_bp)
+    app.register_blueprint(main_bp)
+
 
     with app.app_context():
         db.create_all()
         EmbeddingService.build_index()
+
 
 
     # =========================
@@ -90,7 +111,12 @@ def create_app():
 
     @app.route('/user')
     def account():
-        return render_template('account/account_profile.html')
+        user = UserService.get_user_by_id(session['user_id'])
+        print(user)
+        return render_template(
+            'account/account_profile.html',
+            user=user
+        )
 
     @app.route('/house_price_prediction')
     def house_price_prediction():
@@ -241,9 +267,6 @@ def create_app():
             "reply": ai_reply,
             "conversation_id": conversation.id
         })
-    # =========================
-    # RESET CHAT
-    # =========================
     @app.route("/reset-chat", methods=["POST"])
     def reset_chat():
         conversation_id = session.get("conversation_id")

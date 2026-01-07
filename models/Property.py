@@ -1,5 +1,6 @@
 from datetime import datetime
 from models import db
+from models.User import User
 from models.PropertyImage import PropertyImage
 
 class Property(db.Model):
@@ -29,7 +30,10 @@ class Property(db.Model):
         cascade="all, delete-orphan",
         order_by=PropertyImage.sort_order
     )
-
+    user = db.relationship(
+        User,
+        lazy='joined',
+    )
     @property
     def price_vn(self):
         if self.price is None:
