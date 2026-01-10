@@ -21,6 +21,44 @@
         button{background:#007bff;color:#fff;padding:10px 18px;border:none;border-radius:4px;cursor:pointer}
         button:hover{background:#0056b3}
         .ai-box{background:#f1f7ff;padding:15px;border-radius:6px}
+
+        /* Container chứa ảnh preview */
+.preview-box {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+.preview-item {
+    position: relative;
+    width: 120px;
+    height: 90px;
+}
+.preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+.btn-remove {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    padding : 0;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
     </style>
 </head>
 
@@ -31,11 +69,17 @@
         {% include 'admin/sidebar.html' %}
 
         <div class="content--add-property">
-
+            {% if request.path.startswith('/admin')%}
             <h1>Thêm bất động sản</h1>
-
-            <form method="POST" action="/admin/properties/create" enctype="multipart/form-data">
-
+            {% else %}
+            <h1>Đăng tin bất động sản</h1>
+            <p class="post-limit-text">
+                Bạn còn <strong>{{package.post_limit}}</strong> lượt đăng tin trong hôm nay.
+                Cần đăng nhiều hơn?
+                <a class="buy-package-link" href="{{ url_for('user.posting_plan')}}">Mua gói đăng tin</a>
+            </p>
+            {% endif %}
+                <form id="propertyForm" method="POST" action="{{ action_url }}" enctype="multipart/form-data">
                 <!-- hidden for AI -->
                 <input type="hidden" name="city" id="city">
 
@@ -145,9 +189,19 @@
                 </div>
 
                 <!-- ================= IMAGE ================= -->
-                <h2>Hình ảnh</h2>
-                <input type="file" name="thumbnail">
-                <input type="file" name="images[]" multiple>
+               <h2>Hình ảnh</h2>
+
+                <div class="form-group">
+                    <label>Ảnh đại diện (1 ảnh)</label>
+                    <input type="file" name="thumbnail" id="thumbnailInput" accept="image/*">
+                    <div id="thumbnailPreview" class="preview-box"></div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Ảnh chi tiết (Chọn nhiều ảnh)</label>
+                    <input type="file" id="imagesInput" accept="image/*" multiple>
+                    <div id="imagesPreview" class="preview-box"></div>
+                </div>
 
                 <br><br>
                 <button type="submit">Đăng bất động sản</button>
@@ -157,121 +211,8 @@
     </div>
 </div>
 
-<script>
-const API = 'https://provinces.open-api.vn/api/v1';
+    <script src="{{ url_for('static',filename='js/add-property.js')}}"></script>
 
-const province = document.getElementById('province');
-const district = document.getElementById('district');
-const ward = document.getElementById('ward');
-const city = document.getElementById('city');
-
-// ================= LOAD PROVINCES =================
-fetch(`${API}/p/`)
-    .then(res => res.json())
-    .then(data => {
-        data.forEach(p => {
-            province.innerHTML += `<option value="${p.code}">${p.name}</option>`;
-        });
-    });
-
-// ================= PROVINCE CHANGE =================
-province.addEventListener('change', async () => {
-    district.innerHTML = '<option value="">-- Chọn quận --</option>';
-    ward.innerHTML = '<option value="">-- Chọn phường --</option>';
-    detectCity();
-
-    if (!province.value) return;
-
-    const res = await fetch(`${API}/p/${province.value}?depth=2`);
-    const data = await res.json();
-
-    if (!data.districts) return;
-
-    data.districts.forEach(d => {
-        district.innerHTML += `<option value="${d.code}">${d.name}</option>`;
-    });
-});
-
-// ================= DISTRICT CHANGE =================
-district.addEventListener('change', async () => {
-    ward.innerHTML = '<option value="">-- Chọn phường --</option>';
-
-    if (!district.value) return;
-
-    const res = await fetch(`${API}/d/${district.value}?depth=2`);
-    const data = await res.json();
-
-    if (!data.wards) return;
-
-    data.wards.forEach(w => {
-        ward.innerHTML += `<option value="${w.name}">${w.name}</option>`;
-    });
-});
-
-// ================= DETECT CITY =================
-function detectCity() {
-    const text = province.options[province.selectedIndex]?.text || '';
-
-}
-
-
-</script>
-
-<script>
-function predictPrice() {
-    const provinceSelect = document.getElementById("province");
-    const districtSelect = document.getElementById("district");
-    const wardSelect = document.getElementById("ward");
-
-    const provinceName =
-        provinceSelect.options[provinceSelect.selectedIndex]?.text || "";
-
-    const districtName =
-        districtSelect.options[districtSelect.selectedIndex]?.text || "";
-
-    const wardName =
-        wardSelect.options[wardSelect.selectedIndex]?.text || null;
-
-    const data = {
-        "Tỉnh/Thành phố": provinceName,
-        "Quận": districtName,
-        "Phường": wardName,
-
-        "Loại hình nhà ở": document.getElementById("house_type").value,
-        "Giấy tờ pháp lý": document.querySelector('[name="Giấy tờ pháp lý"]').value,
-
-        "Số tầng": Number(document.getElementById("floors").value || 0),
-        "Số phòng ngủ": Number(document.getElementById("bedrooms").value || 0),
-        "Diện tích": Number(document.getElementById("area").value || 0)
-    };
-
-    // TP.HCM có chiều ngang/dài
-    if (provinceName.includes("Hồ Chí Minh")) {
-        data["Chiều ngang"] = Number(document.getElementById("width").value || 0);
-        data["Chiều dài"]  = Number(document.getElementById("length").value || 0);
-    }
-
-    console.log("📦 Data gửi AI:", data);
-
-    fetch("/api/predict-price", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(result => {
-        document.getElementById("ai_price_m2").value =
-            result.price_m2?.toLocaleString("vi-VN");
-
-        document.getElementById("ai_total_price").value =
-            result.total_price?.toLocaleString("vi-VN");
-    })
-    .catch(err => {
-        console.error("❌ Lỗi AI:", err);
-        alert("Không thể dự đoán giá AI");
-    });
-}
-</script>
 
 
 </body>

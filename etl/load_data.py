@@ -136,7 +136,7 @@ def insert_to_db(json_file):
 
 if __name__ == "__main__":
     # Đảm bảo file JSON nằm đúng vị trí này
-    file_path = 'data/properties_cleaned.json'
+    file_path = '../ai/data/properties_cleaned.json'
 
     if os.path.exists(file_path):
         insert_to_db(file_path)

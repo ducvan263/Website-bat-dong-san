@@ -1,8 +1,10 @@
 import secrets
-from flask import current_app
+from flask import current_app,request
 from flask_mail import Message
 from models import db
 from models.User import User
+from datetime import datetime, timedelta
+
 
 def generate_verification_token():
     """Tạo token xác thực ngẫu nhiên"""
@@ -34,6 +36,35 @@ def send_verification_email(user):
         recipients=[user.email],
         body=f"Xin chào {user.email},\n\n"
              f"Vui lòng nhấp vào link sau để xác nhận email:\n{verify_url}\n\nCảm ơn!"
+    )
+
+    mail.send(msg)
+def send_reset_password_email(user):
+    token = generate_verification_token()
+
+    user.reset_password_token = token
+    user.reset_password_expires = datetime.utcnow() + timedelta(minutes=15)
+    db.session.commit()
+
+    mail = current_app.extensions.get('mail')
+
+    app_url = request.host_url.rstrip('/')
+    reset_url = f"{app_url}/reset-password/{token}"
+
+    msg = Message(
+        subject="Đặt lại mật khẩu",
+        sender=current_app.config['MAIL_USERNAME'],
+        recipients=[user.email],
+        body=f"""
+Xin chào {user.email},
+
+Bạn đã yêu cầu đặt lại mật khẩu.
+Vui lòng click link bên dưới (có hiệu lực 15 phút):
+
+{reset_url}
+
+Nếu không phải bạn yêu cầu, hãy bỏ qua email này.
+"""
     )
 
     mail.send(msg)

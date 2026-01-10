@@ -5,7 +5,7 @@ from models.Property import Property
 from services.property_service import PropertyService
 
 class EmbeddingService:
-    model = SentenceTransformer("intfloat/multilingual-e5-base")
+    # model = SentenceTransformer("intfloat/multilingual-e5-base")
     index = None
     ids = []
 

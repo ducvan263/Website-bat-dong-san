@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_mail import Mail
 
 from routes.email_routes import email_bp
@@ -9,6 +9,7 @@ from routes.ai_routes import ai_bp
 from routes.property_routes import property_bp
 from routes.user_routes import user_bp
 from routes.routes import main_bp
+from routes.password_routes import password_bp
 
 from services.embedding_service import EmbeddingService
 from services.property_service import PropertyService
@@ -63,19 +64,39 @@ def create_app():
     app.register_blueprint(user_bp)
     app.register_blueprint(email_bp)
     app.register_blueprint(main_bp)
+    app.register_blueprint(password_bp)
 
 
     with app.app_context():
         db.create_all()
-        EmbeddingService.build_index()
+        # EmbeddingService.build_index()
 
+    @app.before_request
+    def restrict_admin_routes():
+        role = session.get("role")
 
+        # Nếu là admin
+        if role == "admin":
+            path = request.path
+
+            # Cho phép các route admin & static
+            if (
+                    path.startswith("/admin")
+                    or path.startswith("/static")
+                    or path.startswith("/logout")
+            ):
+                return None
+
+            # Còn lại → đá về trang admin
+            return redirect(url_for("admin.admin_home"))
 
     # =========================
     # WEB ROUTES
     # =========================
     @app.route("/")
     def home():
+
+
         page = request.args.get('page', 1, type=int)
 
         pagination = PropertyService.get_properties_paginated(
@@ -109,14 +130,6 @@ def create_app():
     def properties():
         return render_template('properties.html')
 
-    @app.route('/user')
-    def account():
-        user = UserService.get_user_by_id(session['user_id'])
-        print(user)
-        return render_template(
-            'account/account_profile.html',
-            user=user
-        )
 
     @app.route('/house_price_prediction')
     def house_price_prediction():

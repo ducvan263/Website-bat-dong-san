@@ -69,7 +69,7 @@
         <div class="chat {{ 'outgoing' if m.sender_id == session.user_id else 'incoming' }}">
             <div class="chat-content">
                 <div class="chat-details">
-                    <img src="/static/img/{{ 'user.jpg' if m.sender_id == session.user_id else 'chatbot.jpg' }}">
+                    <img src="{{ session.get('user_avatar') if m.sender_id == session.user_id else '/static/img/chatbot.jpg' }}">
                     <p>{{ m.message }}</p>
                 </div>
             </div>
@@ -106,6 +106,7 @@
 </body>
 <script>
     const USER_ID = {{ session.get('user_id', 0) }};
+    const avatar = {{ session.get('user_avatar') | tojson }};
 
     document.querySelectorAll(".conversation-item").forEach(item => {
         item.addEventListener("click", async () => {
@@ -146,7 +147,7 @@
                 div.innerHTML = `
                     <div class="chat-content">
                         <div class="chat-details">
-                            <img src="/static/img/${isUser ? 'user.jpg' : 'chatbot.jpg'}">
+                            <img src="${isUser ? avatar : '/static/img/chatbot.jpg'}">
                             <p>${m.message}</p>
                         </div>
                     </div>

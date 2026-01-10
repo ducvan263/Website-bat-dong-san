@@ -118,8 +118,11 @@
     <div class="account-dropdown">
             <span class="account-name">Xin chào, {{ session.get('user_name') }} <i class="fa fa-caret-down"></i></span>
             <div class="account-menu">
-                <a href="{{ url_for('account') }}">
+                <a href="{{ url_for('user.account') }}">
                     <i class="fa-solid fa-user-gear"></i> Quản lý tài khoản
+                </a>
+                <a href="{{ url_for('user.add_property') }}">
+                    <i class="fa-solid fa-user-gear"></i> Đăng tin
                 </a>
                 <a class="account-menu--logout" href="{{ url_for('auth.logout') }}">
                     <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất

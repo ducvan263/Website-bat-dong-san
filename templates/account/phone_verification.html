@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodingDung | Quản lý tài khoản</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/account/admin_base.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/account/account_profile.css')}}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app">
+
+        <div class="container light-style flex-grow-1 container-p-y">
+            <!-- Header của profile -->
+            <div class="d-flex justify-content-between align-items-center py-3 mb-4 profile-head">
+                <h4 class="font-weight-bold mb-0">
+                    Quản lý tài khoản
+                </h4>
+
+                <a href="javascript:history.back()" class="btn--rollback">
+                    ← Quay lại
+                </a>
+            </div>
+
+            <div class="card overflow-hidden">
+                <div class="row no-gutters row-bordered row-border-light">
+                    <div class="col-md-3 pt-0">
+                        <div class="list-group list-group-flush account-settings-links">
+                            <a class="list-group-item list-group-item-action active" data-toggle="list"
+                                href="#account-general">Chung</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list"
+                                href="#account-change-password">Đổi mật khẩu</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list"
+                                href="#account-info">Thông tin</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list"
+                                href="#account-social-links">Mạng xã hội</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list"
+                                href="#account-connections">Kết nối</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list"
+                                href="#account-notifications">Thông báo</a>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="tab-content">
+                            <!-- Tab Chung -->
+                            <div class="tab-pane fade active show" id="account-general">
+                                <div class="card-body media align-items-center">
+                                    <img id="avatarPreview"
+                                         src="{{ session.get('user_avatar', '/static/uploads/avatars/default.png') }}"
+                                         class="d-block ui-w-80 rounded-circle">
+
+                                    <div class="media-body ml-4">
+                                        <label class="btn btn-outline-primary mb-2">
+                                            Tải ảnh mới
+                                            <input type="file"
+                                                   class="account-settings-fileinput"
+                                                   name="avatar"
+                                                   accept="image/*"
+                                                   hidden
+                                                   onchange="uploadAvatar(this)">
+                                        </label>
+
+                                        <div class="text-light small mt-1">
+                                            Cho phép JPG, PNG, GIF. Tối đa 800KB
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr class="border-light m-0">
+                                <div class="card-body">
+
+                                    <div class="form-group">
+                                        <label class="form-label">Họ và tên</label>
+                                        <input type="text" class="form-control" value="{{session.get('user_name')}}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Email</label>
+                                        <input disabled type="text" class="form-control mb-1" value="{{session.get('user_email')}}">
+                                        <div class="alert alert-warning mt-3">
+                                        {% if not session.get('is_verified') %}
+                                            Email của bạn chưa được thực.<br>
+                                            <a href="{{ url_for('email.resend_verification') }}">Gửi lại email xác thực</a>
+                                        {% endif%}
+                                            {% if session.get('is_verified') %}
+
+                                            Email của bạn đã được xác thực
+                                            {%endif%}
+                                        </div>
+                                    </div>
+                                     <div class="form-group">
+                                        <label class="form-label">Số điện thoại</label>
+                                        <input type="text" id="user-phone-inp" class="form-control mb-1" value="{{ user.phone }}">
+                                        <div class="alert alert-warning mt-3">
+                                            {% if not session.get('is_phone_verified') %}
+                                                Số điện thoại của bạn chưa được xác thực.<br>
+                                                Vui lòng<a href="{{ url_for('user.phone_verification') }}"> xác thực số điện thoại</a> để có thể đăng tin
+                                            {% endif%}
+                                                {% if session.get('is_phone_verified') %}
+                                                    Số điện thoại của bạn đã được xác thực
+                                                {%endif%}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <script>
+
+                            </script>
+                            <!-- Tab Đổi mật khẩu -->
+<div class="tab-pane fade" id="account-change-password">
+    <form id="changePasswordForm">
+        <div class="card-body pb-2">
+
+            <div class="form-group">
+                <label class="form-label">Mật khẩu hiện tại</label>
+                <input type="password" name="current_password" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Mật khẩu mới</label>
+                <input type="password" name="new_password" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Nhập lại mật khẩu mới</label>
+                <input type="password" name="confirm_password" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-2">
+                Đổi mật khẩu
+            </button>
+
+            <!-- ✅ THÔNG BÁO -->
+            <div id="passwordMessage" class="mt-2"></div>
+
+        </div>
+    </form>
+</div>
+
+                            <!-- Tab Thông tin -->
+                            <div class="tab-pane fade" id="account-info">
+                                <div class="card-body pb-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Tiểu sử</label>
+                                        <textarea class="form-control"
+                                            rows="5">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris nunc arcu, dignissim sit amet sollicitudin iaculis, vehicula id urna.</textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Ngày sinh</label>
+                                        <input type="text" class="form-control" value="3/5/1995">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Quốc gia</label>
+                                        <select class="custom-select">
+                                            <option>USA</option>
+                                            <option selected>Canada</option>
+                                            <option>UK</option>
+                                            <option>Germany</option>
+                                            <option>France</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <hr class="border-light m-0">
+                                <div class="card-body pb-2">
+                                    <h6 class="mb-4">Liên hệ</h6>
+                                    <div class="form-group">
+                                        <label class="form-label">Điện thoại</label>
+                                        <input type="text" class="form-control" value="+0 (123) 456 7891">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Website</label>
+                                        <input type="text" class="form-control" value>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab Mạng xã hội -->
+                            <div class="tab-pane fade" id="account-social-links">
+                                <div class="card-body pb-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Twitter</label>
+                                        <input type="text" class="form-control" value="https://twitter.com/user">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Facebook</label>
+                                        <input type="text" class="form-control" value="https://www.facebook.com/user">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Google+</label>
+                                        <input type="text" class="form-control" value>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">LinkedIn</label>
+                                        <input type="text" class="form-control" value>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Instagram</label>
+                                        <input type="text" class="form-control" value="https://www.instagram.com/user">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab Kết nối -->
+                            <div class="tab-pane fade" id="account-connections">
+                                <div class="card-body">
+                                    <button type="button" class="btn btn-twitter">Kết nối với <strong>Twitter</strong></button>
+                                </div>
+                                <hr class="border-light m-0">
+                                <div class="card-body">
+                                    <h5 class="mb-2">
+                                        <a href="javascript:void(0)" class="float-right text-muted text-tiny"><i
+                                                class="ion ion-md-close"></i> Xóa</a>
+                                        <i class="ion ion-logo-google text-google"></i>
+                                        Bạn đã kết nối với Google:
+                                    </h5>
+                                    <a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+                                        data-cfemail="f9979498818e9c9595b994989095d79a9694">[email&#160;protected]</a>
+                                </div>
+                                <hr class="border-light m-0">
+                                <div class="card-body">
+                                    <button type="button" class="btn btn-facebook">Kết nối với <strong>Facebook</strong></button>
+                                </div>
+                                <hr class="border-light m-0">
+                                <div class="card-body">
+                                    <button type="button" class="btn btn-instagram">Kết nối với <strong>Instagram</strong></button>
+                                </div>
+                            </div>
+
+                            <!-- Tab Thông báo -->
+                            <div class="tab-pane fade" id="account-notifications">
+                                <div class="card-body pb-2">
+                                    <h6 class="mb-4">Hoạt động</h6>
+                                    <div class="form-group">
+                                        <label class="switcher">
+                                            <input type="checkbox" class="switcher-input" checked>
+                                            <span class="switcher-indicator">
+                                                <span class="switcher-yes"></span>
+                                                <span class="switcher-no"></span>
+                                            </span>
+                                            <span class="switcher-label">Gửi email khi ai đó bình luận bài viết của tôi</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="switcher">
+                                            <input type="checkbox" class="switcher-input" checked>
+                                            <span class="switcher-indicator">
+                                                <span class="switcher-yes"></span>
+                                                <span class="switcher-no"></span>
+                                            </span>
+                                            <span class="switcher-label">Gửi email khi ai đó trả lời chủ đề của tôi</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="switcher">
+                                            <input type="checkbox" class="switcher-input">
+                                            <span class="switcher-indicator">
+                                                <span class="switcher-yes"></span>
+                                                <span class="switcher-no"></span>
+                                            </span>
+                                            <span class="switcher-label">Gửi email khi ai đó theo dõi tôi</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <hr class="border-light m-0">
+                                <div class="card-body pb-2">
+                                    <h6 class="mb-4">Ứng dụng</h6>
+                                    <div class="form-group">
+                                        <label class="switcher">
+                                            <input type="checkbox" class="switcher-input" checked>
+                                            <span class="switcher-indicator">
+                                                <span class="switcher-yes"></span>
+                                                <span class="switcher-no"></span>
+                                            </span>
+                                            <span class="switcher-label">Tin tức và thông báo</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="switcher">
+                                            <input type="checkbox" class="switcher-input">
+                                            <span class="switcher-indicator">
+                                                <span class="switcher-yes"></span>
+                                                <span class="switcher-no"></span>
+                                            </span>
+                                            <span class="switcher-label">Cập nhật sản phẩm hàng tuần</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="switcher">
+                                            <input type="checkbox" class="switcher-input" checked>
+                                            <span class="switcher-indicator">
+                                                <span class="switcher-yes"></span>
+                                                <span class="switcher-no"></span>
+                                            </span>
+                                            <span class="switcher-label">Tổng hợp blog hàng tuần</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-right mt-3">
+                <button type="button" class="btn btn-primary">Lưu thay đổi</button>&nbsp;
+                <button type="button" class="btn btn-default">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+function uploadAvatar(input) {
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+
+    // kiểm tra size (800KB)
+    if (file.size > 800 * 1024) {
+        alert("Ảnh vượt quá 800KB");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    fetch("/update-avatar/{{ session.get('user_id') }}", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.avatar) {
+            document.getElementById("avatarPreview").src =
+                data.avatar + "?t=" + new Date().getTime(); // tránh cache
+        } else {
+            alert(data.error || "Upload thất bại");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Lỗi upload avatar");
+    });
+}
+</script>
+<script>
+document.getElementById("changePasswordForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const messageDiv = document.getElementById("passwordMessage");
+
+    messageDiv.innerHTML = "";
+    messageDiv.className = "mt-2";
+
+    const formData = new FormData(form);
+
+    fetch("/change-password", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            messageDiv.classList.add("text-success");
+            messageDiv.innerText = data.message;
+
+            // ⏱ redirect sau 3s
+            setTimeout(() => {
+                window.location.href = "/login";
+            }, 3000);
+        } else {
+            messageDiv.classList.add("text-danger");
+            messageDiv.innerText = data.message;
+        }
+    })
+    .catch(() => {
+        messageDiv.classList.add("text-danger");
+        messageDiv.innerText = "Có lỗi xảy ra, vui lòng thử lại";
+    });
+});
+</script>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

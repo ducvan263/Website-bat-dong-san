@@ -179,10 +179,9 @@
     $(document).ready(function () {
         let table = $('#propertyTable').DataTable();
 
-        // Thêm class đẹp cho phần length
-        $('.dataTables_length').addClass('dt-header');
-          $('.dt-layout-end').append(
-            '<a href="/admin/add-property" class="">Thêm mới</a>'
+      $('.dataTables_length').addClass('dt-header');
+          $('.dt-search').append(
+            '<a href="/admin/add-property" class="add-link">Thêm mới</a>'
         );
     });
 </script>

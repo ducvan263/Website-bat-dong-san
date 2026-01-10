@@ -13,3 +13,4 @@ def blog():
 @main_bp.route('/contact')
 def contact():
     return render_template('contact.html')
+

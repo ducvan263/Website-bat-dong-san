@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash
 from services.property_service import PropertyService
+from services.review_service import ReviewService
+from services.user_service import UserService
 
 admin_bp = Blueprint(
     'admin',
@@ -28,4 +30,19 @@ def admin_management():
 
 @admin_bp.route('/add-property')
 def admin_add_property():
-    return render_template('admin/add-property.html')
+    return render_template('add-property.html',action_url='/admin/properties/create'
+)
+
+@admin_bp.route('/review-management')
+def admin_review_management():
+    reviews= ReviewService.get_all_reviews()
+    return render_template('admin/review-management.html',
+                            reviews=reviews
+                           )
+
+@admin_bp.route('/user-management')
+def admin_user_management():
+    users = UserService.get_all_users()
+    return render_template('admin/user-management.html'
+                           ,users=users
+                           )

@@ -252,3 +252,40 @@ margin-left: 5px;
     font-size: 1.6rem;
     color : var(--blue-color);
 }
+.dt-layout-cell{
+    font-size : 16px;
+}
+.dt-layout-end{
+    display : flex;
+    align-items : center;
+}
+.add-link{
+    font-size : 14px;
+    color : blue;
+    margin-left : 15px;
+    text-decoration : none;
+}
+.post-limit-text {
+    margin: 12px 0 20px;
+    padding: 12px 16px;
+    background: #f1f7ff;
+    border-left: 4px solid #007bff;
+    border-radius: 6px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.post-limit-text strong {
+    color: #007bff;
+}
+
+.buy-package-link {
+    margin-left: 4px;
+    color: #007bff;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.buy-package-link:hover {
+    text-decoration: underline;
+}

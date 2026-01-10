@@ -7,71 +7,67 @@
     <title>CodingDung | Quản lý tài khoản</title>
     <link rel="stylesheet" href="{{ url_for('static',filename='css/account/admin_base.css')}}">
     <link rel="stylesheet" href="{{ url_for('static',filename='css/account/account_profile.css')}}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <style>
+        /* Popup OTP Styling */
+        .otp-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: none; z-index: 9999;
+            justify-content: center; align-items: center;
+        }
+        .otp-modal {
+            width: 880px; height: 500px; background: #fff; display: flex;
+            border-radius: 14px; overflow: hidden; position: relative;
+        }
+        .otp-left { flex: 1; background: #e53935; color: #fff; padding: 42px; display: flex; flex-direction: column; justify-content: center; }
+        .otp-right { width: 380px; padding: 32px; display: flex; flex-direction: column; justify-content: center; }
+        .otp-inputs { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
+        .otp-inputs input { width: 44px; height: 48px; text-align: center; font-size: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .close-otp { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #666; border: none; background: none; }
+        .hidden { display: none !important; }
+    </style>
 </head>
 
 <body>
     <div class="app">
-
         <div class="container light-style flex-grow-1 container-p-y">
-            <!-- Header của profile -->
             <div class="d-flex justify-content-between align-items-center py-3 mb-4 profile-head">
-                <h4 class="font-weight-bold mb-0">
-                    Quản lý tài khoản
-                </h4>
-
-                <a href="javascript:history.back()" class="btn--rollback">
-                    ← Quay lại
-                </a>
+                <h4 class="font-weight-bold mb-0">Quản lý tài khoản</h4>
+                <a href="javascript:history.back()" class="btn--rollback">← Quay lại</a>
             </div>
 
             <div class="card overflow-hidden">
                 <div class="row no-gutters row-bordered row-border-light">
                     <div class="col-md-3 pt-0">
                         <div class="list-group list-group-flush account-settings-links">
-                            <a class="list-group-item list-group-item-action active" data-toggle="list"
-                                href="#account-general">Chung</a>
-                            <a class="list-group-item list-group-item-action" data-toggle="list"
-                                href="#account-change-password">Đổi mật khẩu</a>
-                            <a class="list-group-item list-group-item-action" data-toggle="list"
-                                href="#account-info">Thông tin</a>
-                            <a class="list-group-item list-group-item-action" data-toggle="list"
-                                href="#account-social-links">Mạng xã hội</a>
-                            <a class="list-group-item list-group-item-action" data-toggle="list"
-                                href="#account-connections">Kết nối</a>
-                            <a class="list-group-item list-group-item-action" data-toggle="list"
-                                href="#account-notifications">Thông báo</a>
+                            <a class="list-group-item list-group-item-action active" data-toggle="list" href="#account-general">Chung</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list" href="#account-change-password">Đổi mật khẩu</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list" href="#account-info">Thông tin</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list" href="#account-social-links">Mạng xã hội</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list" href="#account-connections">Kết nối</a>
+                            <a class="list-group-item list-group-item-action" data-toggle="list" href="#account-notifications">Thông báo</a>
                         </div>
                     </div>
+
                     <div class="col-md-9">
                         <div class="tab-content">
-                            <!-- Tab Chung -->
                             <div class="tab-pane fade active show" id="account-general">
                                 <div class="card-body media align-items-center">
-    <img id="avatarPreview"
-         src="{{ session.get('user_avatar', '/static/uploads/avatars/default.png') }}"
-         class="d-block ui-w-80 rounded-circle">
-
-    <div class="media-body ml-4">
-        <label class="btn btn-outline-primary mb-2">
-            Tải ảnh mới
-            <input type="file"
-                   class="account-settings-fileinput"
-                   name="avatar"
-                   accept="image/*"
-                   hidden
-                   onchange="uploadAvatar(this)">
-        </label>
-
-        <div class="text-light small mt-1">
-            Cho phép JPG, PNG, GIF. Tối đa 800KB
-        </div>
-    </div>
-</div>
+                                    <img id="avatarPreview" src="{{ session.get('user_avatar', '/static/uploads/avatars/default.png') }}" class="d-block ui-w-80 rounded-circle">
+                                    <div class="media-body ml-4">
+                                        <label class="btn btn-outline-primary mb-2">
+                                            Tải ảnh mới
+                                            <input type="file" class="account-settings-fileinput" name="avatar" accept="image/*" hidden onchange="uploadAvatar(this)">
+                                        </label>
+                                        <div class="text-light small mt-1">Cho phép JPG, PNG, GIF. Tối đa 800KB</div>
+                                    </div>
+                                </div>
                                 <hr class="border-light m-0">
                                 <div class="card-body">
-
                                     <div class="form-group">
                                         <label class="form-label">Họ và tên</label>
                                         <input type="text" class="form-control" value="{{session.get('user_name')}}">
@@ -80,250 +76,231 @@
                                         <label class="form-label">Email</label>
                                         <input disabled type="text" class="form-control mb-1" value="{{session.get('user_email')}}">
                                         <div class="alert alert-warning mt-3">
-                                        {% if not user.is_verified %}
-                                            Email của bạn chưa được xác nhận. Vui lòng kiểm tra hộp thư.<br>
-                                            <a href="{{ url_for('email.resend_verification') }}">Gửi lại email xác nhận</a>
-                                        {% endif%}
-                                            {% if user.is_verified %}
-
-                                            Email của bạn đã được xác thực
-                                            {%endif%}
+                                            {% if not session.get('is_verified') %}
+                                                Email của bạn chưa được thực.<br>
+                                                <a href="{{ url_for('email.resend_verification') }}">Gửi lại email xác thực</a>
+                                            {% else %}
+                                                Email của bạn đã được xác thực
+                                            {% endif %}
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label">Công ty</label>
-                                        <input type="text" class="form-control" value="Công ty TNHH">
+                                        <label class="form-label">Số điện thoại</label>
+                                        <input type="text" id="user-phone-inp" class="form-control mb-1" value="{{ user.phone or '' }}" placeholder="+84...">
+                                        <div class="alert alert-warning mt-3">
+                                            {% if not user.is_phone_verified %}
+                                                Số điện thoại của bạn chưa được xác thực.<br>
+                                                Vui lòng <a href="javascript:void(0)" onclick="openOTPModal()">xác thực số điện thoại</a> để có thể đăng tin
+                                            {% else %}
+                                                Số điện thoại của bạn đã được xác thực
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Tab Đổi mật khẩu -->
                             <div class="tab-pane fade" id="account-change-password">
-                                <div class="card-body pb-2">
-                                    <div class="form-group">
-                                        <label class="form-label">Mật khẩu hiện tại</label>
-                                        <input type="password" class="form-control">
+                                <form id="changePasswordForm">
+                                    <div class="card-body pb-2">
+                                        <div class="form-group">
+                                            <label class="form-label">Mật khẩu hiện tại</label>
+                                            <input type="password" name="current_password" class="form-control" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Mật khẩu mới</label>
+                                            <input type="password" name="new_password" class="form-control" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Nhập lại mật khẩu mới</label>
+                                            <input type="password" name="confirm_password" class="form-control" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary mt-2">Đổi mật khẩu</button>
+                                        <div id="passwordMessage" class="mt-2"></div>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Mật khẩu mới</label>
-                                        <input type="password" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Nhập lại mật khẩu mới</label>
-                                        <input type="password" class="form-control">
-                                    </div>
-                                </div>
+                                </form>
                             </div>
 
-                            <!-- Tab Thông tin -->
                             <div class="tab-pane fade" id="account-info">
                                 <div class="card-body pb-2">
                                     <div class="form-group">
                                         <label class="form-label">Tiểu sử</label>
-                                        <textarea class="form-control"
-                                            rows="5">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris nunc arcu, dignissim sit amet sollicitudin iaculis, vehicula id urna.</textarea>
+                                        <textarea class="form-control" rows="5">Lorem ipsum dolor sit amet...</textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Ngày sinh</label>
                                         <input type="text" class="form-control" value="3/5/1995">
                                     </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Quốc gia</label>
-                                        <select class="custom-select">
-                                            <option>USA</option>
-                                            <option selected>Canada</option>
-                                            <option>UK</option>
-                                            <option>Germany</option>
-                                            <option>France</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <hr class="border-light m-0">
-                                <div class="card-body pb-2">
-                                    <h6 class="mb-4">Liên hệ</h6>
-                                    <div class="form-group">
-                                        <label class="form-label">Điện thoại</label>
-                                        <input type="text" class="form-control" value="+0 (123) 456 7891">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Website</label>
-                                        <input type="text" class="form-control" value>
-                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Tab Mạng xã hội -->
-                            <div class="tab-pane fade" id="account-social-links">
-                                <div class="card-body pb-2">
-                                    <div class="form-group">
-                                        <label class="form-label">Twitter</label>
-                                        <input type="text" class="form-control" value="https://twitter.com/user">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Facebook</label>
-                                        <input type="text" class="form-control" value="https://www.facebook.com/user">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Google+</label>
-                                        <input type="text" class="form-control" value>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">LinkedIn</label>
-                                        <input type="text" class="form-control" value>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Instagram</label>
-                                        <input type="text" class="form-control" value="https://www.instagram.com/user">
-                                    </div>
-                                </div>
                             </div>
-
-                            <!-- Tab Kết nối -->
-                            <div class="tab-pane fade" id="account-connections">
-                                <div class="card-body">
-                                    <button type="button" class="btn btn-twitter">Kết nối với <strong>Twitter</strong></button>
-                                </div>
-                                <hr class="border-light m-0">
-                                <div class="card-body">
-                                    <h5 class="mb-2">
-                                        <a href="javascript:void(0)" class="float-right text-muted text-tiny"><i
-                                                class="ion ion-md-close"></i> Xóa</a>
-                                        <i class="ion ion-logo-google text-google"></i>
-                                        Bạn đã kết nối với Google:
-                                    </h5>
-                                    <a href="/cdn-cgi/l/email-protection" class="__cf_email__"
-                                        data-cfemail="f9979498818e9c9595b994989095d79a9694">[email&#160;protected]</a>
-                                </div>
-                                <hr class="border-light m-0">
-                                <div class="card-body">
-                                    <button type="button" class="btn btn-facebook">Kết nối với <strong>Facebook</strong></button>
-                                </div>
-                                <hr class="border-light m-0">
-                                <div class="card-body">
-                                    <button type="button" class="btn btn-instagram">Kết nối với <strong>Instagram</strong></button>
-                                </div>
-                            </div>
-
-                            <!-- Tab Thông báo -->
-                            <div class="tab-pane fade" id="account-notifications">
-                                <div class="card-body pb-2">
-                                    <h6 class="mb-4">Hoạt động</h6>
-                                    <div class="form-group">
-                                        <label class="switcher">
-                                            <input type="checkbox" class="switcher-input" checked>
-                                            <span class="switcher-indicator">
-                                                <span class="switcher-yes"></span>
-                                                <span class="switcher-no"></span>
-                                            </span>
-                                            <span class="switcher-label">Gửi email khi ai đó bình luận bài viết của tôi</span>
-                                        </label>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="switcher">
-                                            <input type="checkbox" class="switcher-input" checked>
-                                            <span class="switcher-indicator">
-                                                <span class="switcher-yes"></span>
-                                                <span class="switcher-no"></span>
-                                            </span>
-                                            <span class="switcher-label">Gửi email khi ai đó trả lời chủ đề của tôi</span>
-                                        </label>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="switcher">
-                                            <input type="checkbox" class="switcher-input">
-                                            <span class="switcher-indicator">
-                                                <span class="switcher-yes"></span>
-                                                <span class="switcher-no"></span>
-                                            </span>
-                                            <span class="switcher-label">Gửi email khi ai đó theo dõi tôi</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <hr class="border-light m-0">
-                                <div class="card-body pb-2">
-                                    <h6 class="mb-4">Ứng dụng</h6>
-                                    <div class="form-group">
-                                        <label class="switcher">
-                                            <input type="checkbox" class="switcher-input" checked>
-                                            <span class="switcher-indicator">
-                                                <span class="switcher-yes"></span>
-                                                <span class="switcher-no"></span>
-                                            </span>
-                                            <span class="switcher-label">Tin tức và thông báo</span>
-                                        </label>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="switcher">
-                                            <input type="checkbox" class="switcher-input">
-                                            <span class="switcher-indicator">
-                                                <span class="switcher-yes"></span>
-                                                <span class="switcher-no"></span>
-                                            </span>
-                                            <span class="switcher-label">Cập nhật sản phẩm hàng tuần</span>
-                                        </label>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="switcher">
-                                            <input type="checkbox" class="switcher-input" checked>
-                                            <span class="switcher-indicator">
-                                                <span class="switcher-yes"></span>
-                                                <span class="switcher-no"></span>
-                                            </span>
-                                            <span class="switcher-label">Tổng hợp blog hàng tuần</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
                     </div>
                 </div>
             </div>
-
             <div class="text-right mt-3">
-                <button type="button" class="btn btn-primary">Lưu thay đổi</button>&nbsp;
+                <button type="button" class="btn btn-primary">Lưu thay đổi</button>
                 <button type="button" class="btn btn-default">Hủy</button>
             </div>
         </div>
     </div>
-    <script>
-function uploadAvatar(input) {
-    if (!input.files || !input.files[0]) return;
 
-    const file = input.files[0];
+    <div id="otp-overlay" class="otp-overlay">
+        <div class="otp-modal">
+            <button class="close-otp" onclick="closeOTPModal()">&times;</button>
+            <div class="otp-left">
+                <h1>Bảo đảm riêng tư<br>Thư giãn tìm nhà</h1>
+                <p>Website cam kết bảo mật thông tin người dùng</p>
+            </div>
+            <div class="otp-right">
+                <div id="step-phone">
+                    <h3>Xác thực SĐT</h3>
+                    <p class="text-muted small">Chúng tôi sẽ gửi mã OTP đến số này</p>
+                    <input id="modal-phone-input" class="form-control mb-3" placeholder="+84...">
+                    <div id="recaptcha-container"></div>
+                    <button class="btn btn-danger btn-block" onclick="sendOTP()">Gửi mã</button>
+                </div>
+                <div id="step-otp" class="hidden">
+                    <h3>Nhập mã xác thực</h3>
+                    <p class="text-muted small">Mã gồm 6 chữ số</p>
+                    <div class="otp-inputs">
+                        <input maxlength="1" class="otp-field">
+                        <input maxlength="1" class="otp-field">
+                        <input maxlength="1" class="otp-field">
+                        <input maxlength="1" class="otp-field">
+                        <input maxlength="1" class="otp-field">
+                        <input maxlength="1" class="otp-field">
+                    </div>
+                    <button class="btn btn-danger btn-block" onclick="verifyOTP()">Xác thực</button>
+                    <div class="text-center mt-3 small">
+                        Mã còn <b id="time">240</b>s<br>
+                        <a href="javascript:void(0)" onclick="sendOTP()" class="text-danger">Gửi lại mã</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    // kiểm tra size (800KB)
-    if (file.size > 800 * 1024) {
-        alert("Ảnh vượt quá 800KB");
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append("avatar", file);
-
-    fetch("/update-avatar/{{ session.get('user_id') }}", {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.avatar) {
-            document.getElementById("avatarPreview").src =
-                data.avatar + "?t=" + new Date().getTime(); // tránh cache
-        } else {
-            alert(data.error || "Upload thất bại");
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Lỗi upload avatar");
-    });
-}
-</script>
-
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
 
+    <script>
+        /* 1. KHỞI TẠO FIREBASE */
+        const firebaseConfig = {
+            apiKey: "AIzaSyCO-euAieeoy6NZUc4iNd7sz1LbXwi_HHI",
+            authDomain: "batdongsan-10473.firebaseapp.com",
+            projectId: "batdongsan-10473",
+            appId: "1:859390910524:web:374a49d7c5a135c3db6339"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        function formatToVNPhone(phone) {
+            let cleaned = phone.replace(/\D/g, '');
+
+            if (cleaned.startsWith('84')) {
+                return '+' + cleaned;
+            }
+
+            if (cleaned.startsWith('0')) {
+                return '+84' + cleaned.substring(1);
+            }
+
+            if (cleaned.length >= 9 && cleaned.length <= 10) {
+                return '+84' + cleaned;
+            }
+
+            return '+' + cleaned;
+        }
+        /* 2. LOGIC POPUP OTP */
+        function openOTPModal() {
+            document.getElementById('otp-overlay').style.display = 'flex';
+            const currentPhone = document.getElementById('user-phone-inp').value;
+            const formattedPhone = formatToVNPhone(currentPhone);
+            document.getElementById('modal-phone-input').value = formattedPhone;
+
+            if (!window.recaptchaVerifier) {
+                window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
+            }
+        }
+
+        function closeOTPModal() {
+            document.getElementById('otp-overlay').style.display = 'none';
+        }
+
+        function sendOTP() {
+            const phone = document.getElementById("modal-phone-input").value;
+            if (!phone.startsWith("+84")) {
+                alert("SĐT phải bắt đầu bằng +84 (Ví dụ: +84901234567)");
+                return;
+            }
+
+            auth.signInWithPhoneNumber(phone, window.recaptchaVerifier)
+                .then(res => {
+                    window.confirmationResult = res;
+                    document.getElementById("step-phone").classList.add("hidden");
+                    document.getElementById("step-otp").classList.remove("hidden");
+                    startTimer();
+                }).catch(err => alert("Lỗi: " + err.message));
+        }
+
+        function verifyOTP() {
+            let code = "";
+            document.querySelectorAll(".otp-field").forEach(i => code += i.value);
+
+            confirmationResult.confirm(code)
+                .then(() => {
+                    // Gửi yêu cầu cập nhật database về server của bạn
+                    fetch("/update-phone-verified", {
+                        method: "POST",
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ phone: document.getElementById("modal-phone-input").value })
+                    }).then(() => {
+                        alert("Xác thực thành công!");
+                        location.reload();
+                    });
+                }).catch(() => alert("Mã OTP không chính xác"));
+        }
+
+        /* 3. CÁC TIỆN ÍCH KHÁC */
+        function startTimer() {
+            let t = 240;
+            const el = document.getElementById("time");
+            const interval = setInterval(() => {
+                if (t > 0) el.innerText = --t;
+                else clearInterval(interval);
+            }, 1000);
+        }
+
+        // Auto focus ô nhập OTP
+        document.querySelectorAll(".otp-field").forEach((field, idx, fields) => {
+            field.addEventListener("input", () => {
+                if (field.value && idx < fields.length - 1) fields[idx + 1].focus();
+            });
+        });
+
+        /* 4. LOGIC AVATAR & PASSWORD (CỦA BẠN) */
+        function uploadAvatar(input) {
+            if (!input.files || !input.files[0]) return;
+            const formData = new FormData();
+            formData.append("avatar", input.files[0]);
+            fetch("/update-avatar/{{ session.get('user_id') }}", { method: "POST", body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.avatar) document.getElementById("avatarPreview").src = data.avatar + "?t=" + Date.now();
+                    else alert(data.error || "Thất bại");
+                });
+        }
+
+        document.getElementById("changePasswordForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const messageDiv = document.getElementById("passwordMessage");
+            fetch("/change-password", { method: "POST", body: new FormData(this) })
+                .then(res => res.json())
+                .then(data => {
+                    messageDiv.innerText = data.message;
+                    messageDiv.className = data.success ? "text-success" : "text-danger";
+                    if (data.success) setTimeout(() => window.location.href = "/login", 3000);
+                });
+        });
+    </script>
+</body>
 </html>

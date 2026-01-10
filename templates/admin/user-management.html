@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/admin__base.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/base.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/admin_property.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='fonts/fontawesome-free-6.4.0-web/css/all.css' )}}">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+
+    <title>Admin</title>
+
+    <style>
+        .dt-header,
+        .dt-info {
+            font-size: 1.6rem;
+        }
+    </style>
+
+    <script>
+        /* ============================
+           1. Toggle form thêm
+        ============================= */
+        function addPropertyForm() {
+            const form = document.getElementById("addPropertyForm");
+            const table = document.getElementById("table-container");
+
+            form.style.display = form.style.display === "block" ? "none" : "block";
+            table.style.display = table.style.display === "none" ? "block" : "none";
+        }
+
+        /* ============================
+           2. Toggle form sửa
+        ============================= */
+        function editPropertyForm() {
+            const form = document.getElementById("editPropertyForm");
+            const table = document.getElementById("table-container");
+
+            form.style.display = form.style.display === "block" ? "none" : "block";
+            table.style.display = table.style.display === "none" ? "block" : "none";
+        }
+
+        /* ============================
+           3. Menu admin
+        ============================= */
+        document.addEventListener('DOMContentLoaded', function () {
+            const navUser = document.querySelector('.nav__admin');
+            const dropdownMenu = document.querySelector('.nav__form-admin');
+
+            navUser.addEventListener('click', function (event) {
+                event.stopPropagation();
+                dropdownMenu.style.display =
+                    dropdownMenu.style.display === 'block' ? 'none' : 'block';
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!navUser.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                    dropdownMenu.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+</head>
+
+<body>
+<div class="admin">
+
+    {% include 'admin/header.html' %}
+
+    <div class="container">
+    {% include 'admin/sidebar.html' %}
+
+
+        <!-- Table Section -->
+        <div id="table-container">
+            <h3>Quản lý Tài khoản</h3>
+            <div class="property_management">
+
+                <table id="propertyTable">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Loại</th>
+                        <th>Avatar</th>
+                        <th>Ngày tạo</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for u in users%}
+                        <tr>
+                            <td>{{u.id}}</td>
+                            <td>{{u.name}}</td>
+                            <td>{{u.email}}</td>
+                            <td>{{u.phone}}</td>
+                            <td>{{u.role}}</td>
+                            <td>{{u.avatar}}</td>
+                            <td>{{u.created_at}}</td>
+                        </tr>
+                    {%endfor%}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+        <!-- Form thêm -->
+
+
+
+
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        let table = $('#propertyTable').DataTable();
+
+        // Thêm class đẹp cho phần length
+        $('.dataTables_length').addClass('dt-header');
+          $('.dt-search').append(
+            '<a href="/admin/add-property" class="add-link">Thêm mới</a>'
+        );
+    });
+</script>
+
+</body>
+</html>
+
+</body>
+</html>
+</body>
+</html>

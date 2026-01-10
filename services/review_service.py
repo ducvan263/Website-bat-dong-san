@@ -4,7 +4,26 @@ from models import db
 from sqlalchemy import func
 
 class ReviewService:
+    @staticmethod
+    def get_all_reviews():
+        rows = (
+            db.session.query(Review, User.name)
+            .join(User, User.id == Review.user_id)
+            .order_by(Review.created_at.desc())
+            .all()
+        )
 
+        result = []
+        for r, user_name in rows:
+            result.append({
+                "id": r.id,
+                "user_name": user_name,  # 👈 ĐỔ LÊN HTML
+                "rating": r.rating,
+                "comment": r.comment,
+                "created_at": r.created_at.strftime("%d/%m/%Y")
+            })
+
+        return result
     @staticmethod
     def get_reviews(limit=5):
         rows = (

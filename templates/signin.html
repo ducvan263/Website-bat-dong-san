@@ -68,11 +68,17 @@
                                         <label for="password">Mật khẩu: <span class="required">*</span></label>
                                         <input type="password" name="password">
                                     </div>
-                                    <div class="aa-single-field">
-                                        <label>
-                  <input type="checkbox"> Nhớ mật khẩu
-                </label>
-                                    </div>
+                                        <div class="aa-single-field">
+                                            <div class="aa-single-bottom">
+                                                <label>
+                                                  <input type="checkbox"> Nhớ mật khẩu
+                                                </label>
+                                                <a class="aa--forget-password" href="/forgot-password">
+                                                    Quên mật khẩu
+                                                </a>
+                                            </div>
+                                        </div>
+
                                     <div class="aa-single-submit">
                                         <input type="submit" value="Đăng Nhập" class="aa-browse-btn" name="submit">
                                         <p>Bạn chưa có tài khoản? <a href="{{ url_for('auth.register')}}" style="color: #59abe3 ;">Tạo tài khoản tại đây!</a></p>

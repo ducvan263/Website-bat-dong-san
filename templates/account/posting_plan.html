@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh toán</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/account/posting_plan.css') }}">
+</head>
+<body>
+
+<div class="payment-container">
+
+    <h1>Mua gói đăng tin</h1>
+    <p class="subtitle">Chọn gói đăng tin phù hợp với nhu cầu của bạn</p>
+
+    <!-- ===== GÓI ĐĂNG TIN ===== -->
+    <div class="package-list">
+        <label class="package-card">
+            <input type="radio" name="package" value="single" checked>
+            <h3>1 tin / 3 ngày</h3>
+            <p>Đăng 1 tin trong ngày</p>
+            <span>15.000 VNĐ</span>
+            <p class="expire-days"></p> <!-- Hiển thị số ngày tồn tại -->
+        </label>
+
+        <label class="package-card">
+            <input type="radio" name="package" value="week">
+            <h3>Gói 7 ngày</h3>
+            <p>5 tin/ngày</p>
+            <span>59.000 VNĐ</span>
+            <p class="expire-days"></p>
+        </label>
+
+        <label class="package-card vip">
+            <input type="radio" name="package" value="vip">
+            <h3>VIP 30 ngày ⭐</h3>
+            <p>Không giới hạn tin</p>
+            <span>199.000 VNĐ</span>
+            <p class="expire-days"></p>
+        </label>
+    </div>
+
+    <!-- ===== PHƯƠNG THỨC ===== -->
+    <h2>Phương thức thanh toán</h2>
+
+    <div class="payment-methods">
+        <label class="payment-method">
+            <input type="radio" name="payment" value="zalopay" checked>
+            <img src="https://cdn.tgdd.vn/2020/04/GameApp/image-180x180.png">
+            <span>ZaloPay</span>
+        </label>
+
+        <label class="payment-method">
+            <input type="radio" name="payment" value="stripe">
+            <img src="https://stripe.com/img/v3/home/twitter.png">
+            <span>Visa / MasterCard</span>
+        </label>
+    </div>
+
+    <button id="payBtn">Thanh toán</button>
+
+</div>
+
+<script>
+const PACKAGES = {
+    "single": {name: "1 tin / 3 ngày", price: 15000, limit: 1, days: 1, post_expire_days: 3},
+    "week": {name: "7 ngày", price: 59000, limit: 5, days: 7, post_expire_days: 7},
+    "vip": {name: "VIP 30 ngày", price: 199000, limit: -1, days: 30, post_expire_days: 30},
+};
+
+// Hàm hiển thị số ngày tồn tại bài đăng
+function updatePostExpireDays() {
+    const selectedPackage = document.querySelector('input[name="package"]:checked').value;
+    const packageInfo = PACKAGES[selectedPackage];
+
+    const cards = document.querySelectorAll('.package-card');
+    cards.forEach(card => {
+        const input = card.querySelector('input[name="package"]');
+        const expireEl = card.querySelector('.expire-days');
+
+        if (input.checked) {
+            expireEl.textContent = `Tin của bạn hiển thị trong ${packageInfo.post_expire_days} ngày`;
+        } else {
+            expireEl.textContent = '';
+        }
+    });
+}
+
+// Cập nhật khi đổi gói
+document.querySelectorAll('input[name="package"]').forEach(input => {
+    input.addEventListener('change', updatePostExpireDays);
+});
+
+// Cập nhật lúc load trang
+updatePostExpireDays();
+
+// Thanh toán
+document.getElementById('payBtn').onclick = function () {
+    const pkg = document.querySelector('input[name="package"]:checked').value;
+    const method = document.querySelector('input[name="payment"]:checked').value;
+
+    if (method === 'stripe') {
+        window.location.href = `/payment/stripe?package=${pkg}`;
+    } else {
+        window.location.href = `/payment/zalopay?package=${pkg}`;
+    }
+}
+</script>
+
+</body>
+</html>

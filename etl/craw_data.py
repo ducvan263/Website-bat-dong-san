@@ -7,7 +7,7 @@ import random
 
 # ================= CONFIG =================
 BASE_URL = "https://batdongsan.com.vn/ban-nha-rieng"
-SAVE_DIR = "data"
+SAVE_DIR = "../ai/data"
 IMG_DIR = os.path.join(SAVE_DIR, "property_images")
 os.makedirs(IMG_DIR, exist_ok=True)
 
