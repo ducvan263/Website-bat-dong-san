@@ -7,6 +7,7 @@ from models import db
 from models.Transaction import Transaction
 from models.User import User, PACKAGES
 from models.UserPackage import UserPackage
+from services.property_service import PropertyService
 from services.user_service import UserService
 
 user_bp = Blueprint('user', __name__)
@@ -66,16 +67,14 @@ def add_property():
             message=message,
             phone_verified=user.is_phone_verified
         )
-    package = UserService.get_package_by_user_id(user_id)
-    if not package:
-        package = 0
+    post_limit = user.get_today_post_limit()
     # Nếu đã xác thực → hiển thị trang đăng tin
 
 
     return render_template(
         'add-property.html',
         is_phone_verified=user.is_phone_verified,
-        package=package,
+        post_limit=post_limit,
         action_url='/properties/create'
     )
 
@@ -191,3 +190,16 @@ def update_phone_verified():
 
     return jsonify({"success": True, "message": "Xác thực số điện thoại thành công"})
 
+@user_bp.route('/posted_property')
+def posted_property():
+    user_id = session.get('user_id')
+
+    if not user_id:
+        return
+
+    properties = PropertyService.get_property_by_user_id(user_id)
+
+    return render_template(
+        'account/posted_property.html',
+        properties=properties
+    )

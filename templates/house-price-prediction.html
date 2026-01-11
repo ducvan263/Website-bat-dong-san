@@ -165,75 +165,7 @@
     </div>
 
 </div>
-    <!-- ================= REVIEW SUMMARY ================= -->
 
-    <!-- ================= USER REVIEWS ================= -->
-    <div class="user-reviews">
-        <div class="reviews-header">
-            <h3>💬 Đánh giá từ người dùng</h3>
-
-            <div class="avg-rating">
-                <span class="avg-score">{{ avg_rating }}</span>
-                <span class="avg-stars">
-                    {% for i in range(avg_rating|int) %}★{% endfor %}
-                    {% if avg_rating - (avg_rating|int) >= 0.5 %}☆{% endif %}
-                </span>
-                <span class="avg-count">({{ review_count }} đánh giá)</span>
-            </div>
-        </div>
-
-    <div class="review-list">
-        {% for r in reviews %}
-            <div class="review-item">
-                <div class="review-header">
-                    <strong>{{ r.user_name }}</strong>
-                    <span class="stars">
-                        {% for i in range(r.rating) %}★{% endfor %}
-                        {% for i in range(5 - r.rating) %}☆{% endfor %}
-                    </span>
-                </div>
-
-                <p>{{ r.comment }}</p>
-                <span class="review-time">{{ r.created_at }}</span>
-            </div>
-        {% else %}
-            <p style="color:#6b7280;">Chưa có đánh giá nào.</p>
-        {% endfor %}
-    </div>
-</div>
-
-</div>
-<!-- ================= REVIEW POPUP ================= -->
-<div id="review-popup" class="review-popup hidden">
-    <div class="popup-overlay"></div>
-
-    <div class="popup-content">
-        <h3>⭐ Đánh giá kết quả dự đoán</h3>
-        <p class="popup-sub">
-            Kết quả AI có hữu ích với bạn không?
-        </p>
-
-        <div class="rating-select" id="rating-select">
-            <span data-value="1">★</span>
-            <span data-value="2">★</span>
-            <span data-value="3">★</span>
-            <span data-value="4">★</span>
-            <span data-value="5">★</span>
-        </div>
-
-        <!-- ⭐ LƯU RATING -->
-        <input type="hidden" id="review-rating" value="">
-
-        <textarea id="review-comment"
-                  placeholder="Chia sẻ trải nghiệm của bạn (không bắt buộc)"></textarea>
-
-        <div class="popup-actions">
-            <button class="btn-skip" onclick="closeReviewPopup()">Bỏ qua</button>
-            <button type="button" class="btn-submit" id="btn-submit-review" onclick="submitReview()">
-                Gửi đánh giá
-            </button>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -372,93 +304,11 @@ function predictPrice() {
 
         document.getElementById("ai_total_price").value =
             result.total_price?.toLocaleString("vi-VN");
-        showReviewPopup(); // 👈 thêm dòng này
 
     })
     .catch(err => {
         console.error("❌ Lỗi AI:", err);
         alert("Không thể dự đoán giá AI");
-    });
-}
-let selectedRating = 0;
-
-// 1. Xử lý chọn sao (Hover và Click)
-const stars = document.querySelectorAll(".rating-select span");
-stars.forEach(star => {
-    // Khi click chọn
-    star.addEventListener("click", () => {
-        selectedRating = star.dataset.value;
-        document.getElementById("review-rating").value = selectedRating;
-        console.log(document.getElementById("review-rating").value)
-        updateStars(selectedRating);
-    });
-
-    // Hiệu ứng rê chuột qua (Optional)
-    star.addEventListener("mouseover", () => updateStars(star.dataset.value));
-    star.addEventListener("mouseleave", () => updateStars(selectedRating));
-});
-
-function updateStars(count) {
-    stars.forEach(s => {
-        s.classList.toggle("active", s.dataset.value <= count);
-    });
-}
-
-// 2. Hiện/Ẩn Popup
-function showReviewPopup() {
-    // Reset form trước khi hiện
-    selectedRating = 0;
-    document.getElementById("review-rating").value = 0;
-    document.getElementById("review-comment").value = "";
-    updateStars(0);
-
-    document.getElementById("review-popup").classList.remove("hidden");
-}
-
-function closeReviewPopup() {
-    document.getElementById("review-popup").classList.add("hidden");
-}
-
-// 3. Gửi Review lên Server
-function submitReview() {
-    const rating = document.getElementById("review-rating").value;
-    const comment = document.getElementById("review-comment").value;
-    const btnSubmit = document.getElementById("btn-submit-review");
-
-    if (rating == 0) {
-        alert("Vui lòng chọn số sao đánh giá ⭐");
-        return;
-    }
-
-    // Trạng thái Loading
-    btnSubmit.disabled = true;
-    btnSubmit.innerText = "Đang gửi...";
-
-    fetch("/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            rating: parseInt(rating),
-            comment: comment
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        // Tùy vào Backend trả về 'success' hay 'id'
-        if (data.success || data.id) {
-            alert("Cảm ơn bạn đã đóng góp ý kiến!");
-            closeReviewPopup();
-        } else {
-            alert("Không thể gửi đánh giá, vui lòng thử lại.");
-        }
-    })
-    .catch(err => {
-        console.error("Error:", err);
-        alert("Lỗi kết nối máy chủ.");
-    })
-    .finally(() => {
-        btnSubmit.disabled = false;
-        btnSubmit.innerText = "Gửi đánh giá";
     });
 }
 

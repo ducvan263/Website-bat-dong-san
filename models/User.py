@@ -2,6 +2,8 @@ from datetime import datetime
 
 from . import db  # import db từ models/__init__.py
 from models.UserPackage import UserPackage
+from models.UserFreeQuota import UserFreeQuota
+
 PACKAGES = {
     "single": {"name": "1 tin / 3 ngày", "price": 15000, "limit": 1, "days": 1, "post_expire_days": 3},
     "week": {"name": "7 ngày", "price": 59000, "limit": 5, "days": 7, "post_expire_days": 7},
@@ -44,38 +46,63 @@ class User(db.Model):
         return f"<User {self.is_email_verified}>"
 
     def get_active_package(self):
-        """Gói hiện tại còn hiệu lực"""
         now = datetime.utcnow()
-        return self.package.filter(
+        return UserPackage.query.filter(
+            UserPackage.user_id == self.id,
             UserPackage.package_expired_at > now
         ).order_by(UserPackage.created_at.desc()).first()
 
     def get_today_post_limit(self):
-        """Số lượt đăng hôm nay"""
-        active_pkg = self.get_active_package()
         now = datetime.utcnow()
+        active_pkg = self.get_active_package()
 
+        # ===== USER CÓ GÓI =====
         if active_pkg:
-            # reset post_limit nếu đã qua ngày
-            if active_pkg.last_reset.date() < now.date():
+            if not active_pkg.last_reset or active_pkg.last_reset.date() < now.date():
                 active_pkg.post_limit = PACKAGES[active_pkg.package_key]["limit"]
                 active_pkg.last_reset = now
                 db.session.commit()
+
             return active_pkg.post_limit
-        else:
-            # user chưa mua gói → mặc định 2 lượt/ngày
-            return DEFAULT_FREE_POSTS_PER_DAY
+
+        # ===== USER FREE =====
+        quota = UserFreeQuota.query.filter_by(
+            user_id=self.id,
+            date=now.date()
+        ).first()
+
+        used = quota.used if quota else 0
+        return max(0, DEFAULT_FREE_POSTS_PER_DAY - used)
 
     def reduce_post_limit(self):
-        """Trừ đi 1 lượt đăng sau khi đăng tin"""
-        active_pkg = self.get_active_package()
         now = datetime.utcnow()
+        active_pkg = self.get_active_package()
+
+        # ===== USER CÓ GÓI =====
         if active_pkg:
-            if active_pkg.last_reset.date() < now.date():
-                # reset lại post_limit theo gói
+            if not active_pkg.last_reset or active_pkg.last_reset.date() < now.date():
                 active_pkg.post_limit = PACKAGES[active_pkg.package_key]["limit"]
                 active_pkg.last_reset = now
+
             if active_pkg.post_limit > 0:
                 active_pkg.post_limit -= 1
+
             db.session.commit()
-        # nếu chưa mua gói → không cần lưu vì là 2 lượt mặc định/ngày
+            return
+
+        # ===== USER FREE =====
+        quota = UserFreeQuota.query.filter_by(
+            user_id=self.id,
+            date=now.date()
+        ).first()
+
+        if not quota:
+            quota = UserFreeQuota(
+                user_id=self.id,
+                date=now.date(),
+                used=0
+            )
+            db.session.add(quota)
+
+        quota.used += 1
+        db.session.commit()

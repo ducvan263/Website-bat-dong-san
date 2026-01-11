@@ -56,6 +56,4 @@ class UserService:
 
         return True, "Đổi mật khẩu thành công"
 
-    @staticmethod
-    def get_package_by_user_id(user_id):
-        return UserPackage.query.get(user_id)
+

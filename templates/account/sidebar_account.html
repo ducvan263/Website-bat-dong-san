@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar__logo">
+        <h2>BĐS Online</h2>
+    </div>
+
+    <ul class="sidebar__menu">
+    <li>
+        <a href="/add-property" class="{% if request.path == '/add-property' %}active{% endif %}">
+            <i class="fa-solid fa-circle-plus"></i>
+            <span>Đăng tin</span>
+        </a>
+    </li>
+
+    <li>
+        <a href="/posted_property" class="{% if request.path == '/quan-ly-dang-tin' %}active{% endif %}">
+            <i class="fa-solid fa-list-check"></i>
+            <span>Tin đã đăng</span>
+        </a>
+    </li>
+
+    <li>
+        <a href="/lich-su-giao-dich" class="{% if request.path == '/lich-su-giao-dich' %}active{% endif %}">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>Lịch sử giao dịch</span>
+        </a>
+    </li>
+</ul>
+</div>
+
+</body>
+</html>

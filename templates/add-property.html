@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Thêm bất động sản</title>
-
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/admin__base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/account/header_account.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/account/sidebar_account.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
         body{font-family:Arial,sans-serif;background:#f5f5f5}
-        .content--add-property{width:900px;margin:30px auto;background:#fff;padding:25px;border-radius:8px}
+        .content--add-property{width:900px;margin:80px 0 0 400px;background:#fff;padding:25px;border-radius:8px}
         h1{font-size:2rem}
         h2{margin-top:30px;border-bottom:2px solid #eee;padding-bottom:5px;font-size:1.8rem}
         .form-group{margin-bottom:15px}
@@ -64,17 +67,22 @@
 
 <body>
 <div class="admin">
+    {% if request.path.startswith('/admin')%}
     {% include 'admin/header.html' %}
     <div class="container">
         {% include 'admin/sidebar.html' %}
 
         <div class="content--add-property">
-            {% if request.path.startswith('/admin')%}
             <h1>Thêm bất động sản</h1>
             {% else %}
+                {% include 'account/header_account.html' %}
+            <div class="container">
+                {% include 'account/sidebar_account.html' %}
+                <div class="content--add-property">
+
             <h1>Đăng tin bất động sản</h1>
             <p class="post-limit-text">
-                Bạn còn <strong>{{package.post_limit}}</strong> lượt đăng tin trong hôm nay.
+                Bạn còn <strong>{{post_limit}}</strong> lượt đăng tin trong hôm nay.
                 Cần đăng nhiều hơn?
                 <a class="buy-package-link" href="{{ url_for('user.posting_plan')}}">Mua gói đăng tin</a>
             </p>
@@ -93,8 +101,8 @@
 
                 <div class="row">
                     <div class="form-group">
-                        <label>Giá niêm yết (VNĐ)</label>
-                        <input type="number" name="price">
+                        <label>Giá niêm yết (Triệu VNĐ)</label>
+                        <input type="number" name="price" id="price-house-inp">
                     </div>
 
                     <div class="form-group">
@@ -177,15 +185,19 @@
                 <div class="ai-box">
                     <div class="row">
                         <div class="form-group">
-                            <label>Giá AI (VNĐ/m²)</label>
+                            <label>Giá AI (Triệu VNĐ/m²)</label>
                             <input style="outline:none; cursor : default;" id="ai_price_m2" readonly>
                         </div>
                         <div class="form-group">
-                            <label>Tổng giá AI (VNĐ)</label>
+                            <label>Tổng giá AI (Triệu VNĐ)</label>
                             <input style="outline:none; cursor : default;" id="ai_total_price" readonly>
                         </div>
                     </div>
-                    <button type="button" onclick="predictPrice()">Dự đoán giá</button>
+                    <div class="submit-btn-container">
+                        <button type="button" onclick="predictPrice()">Dự đoán giá</button>
+                        <button type="button" onclick="fillPrice()" style="display : none;" id="accept-price-btn">Chấp nhận giá này</button>
+
+                    </div>
                 </div>
 
                 <!-- ================= IMAGE ================= -->

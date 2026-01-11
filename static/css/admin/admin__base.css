@@ -289,3 +289,11 @@ margin-left: 5px;
 .buy-package-link:hover {
     text-decoration: underline;
 }
+.submit-btn-container{
+display : flex;
+}
+#accept-price-btn{
+    background-color: #2ecc71;
+    color: #fff;
+    margin-left : 15px;
+}

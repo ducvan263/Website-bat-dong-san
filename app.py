@@ -118,11 +118,12 @@ def create_app():
     @app.route('/property/<int:property_id>')
     def property_detail(property_id):
         property = PropertyService.get_property_by_id(property_id)
-
+        reviews = ReviewService.get_review_by_property_id(property_id)
         images = property.images if property else []
         return render_template(
             'properties-detail.html',
             property=property,
+            reviews=reviews,
             images=images
         )
 
@@ -146,20 +147,27 @@ def create_app():
 
     @app.route("/reviews", methods=["POST"])
     def create_review():
-        data = request.json
-        id = session.get('user_id')
-        rating = int(data.get("rating"))
-        comment = data.get("comment")
+        user_id = session.get("user_id")
+        if not user_id:
+            return jsonify(success=False, message="Bạn cần đăng nhập để có thể bình luận"), 401
 
-        ReviewService.create_review(
-            user_id=id,
-            rating=rating,
-            comment=comment
+        data = request.get_json()
+        comment_text = data.get("comment", "").strip()
+        property_id = data.get('propertyId')
+        if not comment_text:
+            return jsonify(success=False, message="Nội dung bình luận rỗng"), 400
+
+        # Tạo review
+        comment = ReviewService.create_review(
+            user_id=user_id,
+            property_id=property_id,
+            comment=comment_text
         )
 
         return jsonify({
             "success": True,
-            "message": "Đã gửi đánh giá thành công"
+            "message": "Đã gửi đánh giá thành công",
+            "comment": comment
         })
     @app.route('/chat-bot')
     def chat_bot():
@@ -378,15 +386,11 @@ def create_app():
 
     @app.route('/test')
     def test():
-        texts = []
-        property_ids = []
-        properties = PropertyService.get_all_property()
-        for p in properties:
-            texts.append(PropertyService.property_to_text(p))
-            property_ids.append(p.id)
+        print("test")
+        review = PropertyService.get_property_by_user_id(2)
+        print(review)
 
-        print(texts)
-        return texts
+        return jsonify("")
 
 
     return app

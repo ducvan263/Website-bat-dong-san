@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from models.Review import Review
 from models.User import User
 from models import db
@@ -69,17 +71,31 @@ class ReviewService:
 
 
     @staticmethod
-    def create_review(user_id, rating, comment=None):
+    def create_review(user_id,property_id, comment):
+        # 1. Lấy user
+        user = User.query.get(user_id)
+        if not user:
+            return None
+
+        # 2. Tạo review
         review = Review(
             user_id=user_id,
-            rating=rating,
-            comment=comment
+            comment=comment,
+            property_id=property_id,
+            created_at=datetime.utcnow()
         )
 
         db.session.add(review)
         db.session.commit()
-        return review
 
+        # 3. Trả về dữ liệu cho frontend
+        return {
+            "user_name": user.name,
+            "avatar": user.avatar,
+            "rating": getattr(review, "rating", None),
+            "comment": review.comment,
+            "created_at": review.created_at.strftime("%d/%m/%Y %H:%M")
+        }
     @staticmethod
     def get_latest_reviews(limit=5):
         rows = (
@@ -111,3 +127,24 @@ class ReviewService:
             "avg_rating": round(avg_rating or 0, 1),
             "review_count": count
         }
+
+    @staticmethod
+    def get_review_by_property_id(property_id):
+        rows = (
+            db.session.query(Review).filter(Review.property_id == property_id)
+            .join(Review.user)
+            .order_by(Review.created_at.desc())
+            .all()
+        )
+
+        return [
+            {
+                "user_name": r.user.name,
+                "avatar" : r.user.avatar,
+                "rating": r.rating,
+                "comment": r.comment,
+                "created_at": r.format_created(),
+            }
+            for r in rows
+        ]
+

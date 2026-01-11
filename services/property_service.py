@@ -19,6 +19,9 @@ class PropertyService:
     def get_all_property():
         return Property.query.all()
     @staticmethod
+    def get_property_by_user_id(user_id):
+        return Property.query.filter_by(user_id=user_id).all()
+    @staticmethod
     def get_properties_paginated(page=1, per_page=6):
         query = Property.query.order_by(Property.created_at.desc())
 

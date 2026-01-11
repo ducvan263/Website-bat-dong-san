@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+</head>
+<body>
+        <header class="chat-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <a href="javascript:history.back()" class="back-btn">
+                        <span class="material-symbols-rounded">arrow_back_ios</span>
+                        <span>Quay lại</span>
+                    </a>
+                </div>
+
+                <div class="header-center">
+                    <div class="project-info">
+                        <div>
+                            <span class="project-name">Wealthuring</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <div class="account-dropdown">
+            <span class="account-name">{{ session.get('user_name') }} <i class="fa fa-caret-down"></i></span>
+            <div class="account-menu">
+                <a href="{{ url_for('user.account') }}">
+                    <i class="fa-solid fa-user-gear"></i> Quản lý tài khoản
+                </a>
+                <a href="{{ url_for('user.add_property') }}">
+                    <i class="fa-solid fa-user-gear"></i> Đăng tin
+                </a>
+                <a class="account-menu--logout" href="{{ url_for('auth.logout') }}">
+                    <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                </a>
+            </div>
+        </div>
+                </div>
+            </div>
+        </header>
+
+</body>
+</html>

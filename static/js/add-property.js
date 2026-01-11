@@ -102,6 +102,7 @@ function predictPrice() {
 
         document.getElementById("ai_total_price").value =
             result.total_price?.toLocaleString("vi-VN");
+        document.getElementById('accept-price-btn').style.display='flex';
     })
     .catch(err => {
         console.error("❌ Lỗi AI:", err);
@@ -167,7 +168,11 @@ function renderDetailPreviews() {
         reader.readAsDataURL(file);
     });
 }
-
+function fillPrice(){
+    const housePriceInp = document.getElementById('price-house-inp')
+    const totalPriceAI = document.getElementById('ai_total_price')
+    housePriceInp.value = totalPriceAI.value
+}
 // 3. Hàm xóa ảnh chi tiết
 function removeDetailImage(index) {
     detailImages.splice(index, 1);
