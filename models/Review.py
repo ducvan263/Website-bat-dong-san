@@ -1,6 +1,13 @@
 from . import db
 from datetime import datetime
 
+
+SENTIMENT_MAP = {
+    "Negative": 0,
+    "Neutral": 1,
+    "Positive": 2,
+    "Spam": 3
+}
 class Review(db.Model):
     __tablename__ = "reviews"
 
@@ -11,7 +18,7 @@ class Review(db.Model):
     comment = db.Column(db.Text)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
+    sentiment_label = db.Column(db.Integer, nullable=False)
     user = db.relationship("User", backref="reviews")
     def __repr__(self):
         return "<Review %r>" % self.id

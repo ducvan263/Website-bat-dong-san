@@ -46,3 +46,27 @@ def admin_user_management():
     return render_template('admin/user-management.html'
                            ,users=users
                            )
+@admin_bp.route('/negative-properties')
+def admin_negative_properties():
+    rows = ReviewService.get_negative_properties(
+        min_reviews=3,
+        negative_threshold=0.4
+    )
+
+    properties = []
+    for r in rows:
+        properties.append({
+            "property_id": r.property_id,
+            "title": r.title,
+            "address": r.address,
+            "user_name" : r.user_name,
+            "user_email" : r.user_email,
+            "total_comments": r.total_reviews,
+            "negative_ratio": round(r.negative_ratio * 100, 1),
+            "contacted": r.contacted
+        })
+
+    return render_template(
+        "admin/negative_properties.html",
+        properties=properties
+    )

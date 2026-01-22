@@ -1,4 +1,5 @@
 from models import db
+from models.Transaction import Transaction
 from models.User import User
 from models.UserPackage import UserPackage
 
@@ -56,4 +57,7 @@ class UserService:
 
         return True, "Đổi mật khẩu thành công"
 
-
+    @staticmethod
+    def get_transaction_by_user(user_id):
+        rows = db.session.query(Transaction).filter(Transaction.user_id == user_id).all()
+        return rows

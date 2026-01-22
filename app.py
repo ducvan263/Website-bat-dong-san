@@ -22,8 +22,7 @@ from models import db
 from models.Property import Property
 from models.Province import Province
 from models.PropertyType import PropertyType
-import requests
-import os
+import os,time
 
 from services.user_service import UserService
 
@@ -117,14 +116,24 @@ def create_app():
 
     @app.route('/property/<int:property_id>')
     def property_detail(property_id):
-        property = PropertyService.get_property_by_id(property_id)
+        prop = PropertyService.get_property_by_id(property_id)
+        if not prop:
+            return ""
+
+        key = f"view_property_{property_id}"
+        now = int(time.time())
+        last_view = session.get(key)
+        if not last_view or now - last_view > 600:
+            PropertyService.increase_view(property_id)
+            session[key] = now
+
         reviews = ReviewService.get_review_by_property_id(property_id)
-        images = property.images if property else []
+
         return render_template(
             'properties-detail.html',
-            property=property,
+            property=prop,
             reviews=reviews,
-            images=images
+            images=prop.images
         )
 
     @app.route('/properties')
@@ -145,30 +154,7 @@ def create_app():
         )
 
 
-    @app.route("/reviews", methods=["POST"])
-    def create_review():
-        user_id = session.get("user_id")
-        if not user_id:
-            return jsonify(success=False, message="Bạn cần đăng nhập để có thể bình luận"), 401
 
-        data = request.get_json()
-        comment_text = data.get("comment", "").strip()
-        property_id = data.get('propertyId')
-        if not comment_text:
-            return jsonify(success=False, message="Nội dung bình luận rỗng"), 400
-
-        # Tạo review
-        comment = ReviewService.create_review(
-            user_id=user_id,
-            property_id=property_id,
-            comment=comment_text
-        )
-
-        return jsonify({
-            "success": True,
-            "message": "Đã gửi đánh giá thành công",
-            "comment": comment
-        })
     @app.route('/chat-bot')
     def chat_bot():
         user_id = session.get("user_id")
@@ -387,7 +373,7 @@ def create_app():
     @app.route('/test')
     def test():
         print("test")
-        review = PropertyService.get_property_by_user_id(2)
+        review = UserService.get_transaction_by_user(1)
         print(review)
 
         return jsonify("")

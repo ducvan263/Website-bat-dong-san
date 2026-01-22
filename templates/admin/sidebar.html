@@ -10,11 +10,24 @@
                href="">
                Tổng quan
             </a>
+           <div class="sidebar-dropdown">
+                <div class="sidebar-dropdown__title" onclick="togglePostMenu()">
+                    Quản lý bài đăng
+                    <span class="arrow" id="postArrow">▾</span>
+                </div>
 
-            <a class="{{ 'sidebar--active' if request.endpoint == 'admin.admin_home' else '' }}"
-               href="{{ url_for('admin.admin_home') }}">
-               Quản lý bài đăng
-            </a>
+                <div class="sidebar-dropdown__menu" id="postMenu">
+                    <a class="{{ 'sidebar--active' if request.endpoint == 'admin.admin_home' else '' }}"
+                       href="{{ url_for('admin.admin_home') }}">
+                        Tất cả bài đăng
+                    </a>
+                    <a class="{{ 'sidebar--active' if request.endpoint == 'admin.admin_negative_properties' else '' }}"
+                       href="{{ url_for('admin.admin_negative_properties') }}">
+                        Bài đăng tiêu cực
+                    </a>
+                </div>
+            </div>
+
 
             <a class="{{ 'sidebar--active' if request.endpoint == 'admin.admin_review_management' else '' }}"
                href="{{ url_for('admin.admin_review_management') }}">
@@ -27,5 +40,14 @@
             </a>
 
         </div>
+<script>
+function togglePostMenu() {
+    const menu = document.getElementById("postMenu");
+    const arrow = document.getElementById("postArrow");
+
+    menu.classList.toggle("active");
+    arrow.classList.toggle("rotate");
+}
+</script>
 </body>
 </html>

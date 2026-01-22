@@ -297,3 +297,74 @@ display : flex;
     color: #fff;
     margin-left : 15px;
 }
+
+/* sidebar dropdown */
+.sidebar-dropdown {
+    margin-top: 10px;
+}
+
+.sidebar-dropdown__title {
+    font-size: 1.8rem;
+    padding: 15px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-dropdown__title:hover {
+    background-color: #34495e;
+}
+
+.sidebar-dropdown__menu {
+    display: none;
+    margin-left: 10px;
+}
+
+.sidebar-dropdown__menu a {
+    font-size: 1.6rem;
+    padding: 12px 10px;
+}
+
+
+.arrow {
+    font-size: 1.4rem;
+}
+.sidebar-dropdown__title {
+    font-size: 1.8rem;
+    padding: 15px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-dropdown__title:hover {
+    background-color: #34495e;
+}
+
+.sidebar-dropdown__menu {
+    display: none;
+    margin-left: 10px;
+}
+
+.sidebar-dropdown__menu a {
+    font-size: 1.6rem;
+    padding: 12px 10px;
+}
+
+/* khi mở */
+.sidebar-dropdown__menu.active {
+    display: block;
+}
+
+.arrow {
+    transition: transform 0.3s ease;
+}
+
+/* xoay mũi tên */
+.arrow.rotate {
+    transform: rotate(180deg);
+}

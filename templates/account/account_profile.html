@@ -57,8 +57,9 @@
                         <div class="tab-content">
                             <div class="tab-pane fade active show" id="account-general">
                                 <div class="card-body media align-items-center">
-                                    <img id="avatarPreview" src="{{ session.get('user_avatar', '/static/uploads/avatars/default.png') }}" class="d-block ui-w-80 rounded-circle">
-                                    <div class="media-body ml-4">
+                                    <img id="avatarPreview"
+                                         src="{{ session.get('user_avatar') or url_for('static', filename='uploads/avatars/default.png') }}"
+                                         class="d-block ui-w-80 rounded-circle">                                    <div class="media-body ml-4">
                                         <label class="btn btn-outline-primary mb-2">
                                             Tải ảnh mới
                                             <input type="file" class="account-settings-fileinput" name="avatar" accept="image/*" hidden onchange="uploadAvatar(this)">

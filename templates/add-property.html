@@ -66,6 +66,27 @@
 </head>
 
 <body>
+<!-- ================= POPUP HẾT LƯỢT ĐĂNG TIN ================= -->
+<div id="postLimitModal" class="modal-overlay">
+    <div class="modal-box">
+        <h2>🚫 Hết lượt đăng tin</h2>
+        <p>
+            Bạn đã sử dụng <strong>hết số lượt đăng tin hôm nay</strong>.
+        </p>
+        <p>
+            Vui lòng mua gói để tiếp tục đăng tin.
+        </p>
+
+        <div class="modal-actions">
+            <a href="{{ url_for('user.posting_plan') }}" class="btn-buy">
+                Mua gói đăng tin
+            </a>
+            <button onclick="closePostLimitModal()" class="btn-close">
+                Đóng
+            </button>
+        </div>
+    </div>
+</div>
 <div class="admin">
     {% if request.path.startswith('/admin')%}
     {% include 'admin/header.html' %}
@@ -221,10 +242,10 @@
 
         </div>
     </div>
+        </div>
+    </div>
 </div>
-
     <script src="{{ url_for('static',filename='js/add-property.js')}}"></script>
-
 
 
 </body>

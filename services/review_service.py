@@ -1,9 +1,11 @@
 from datetime import datetime
 
+from models.Property import Property
 from models.Review import Review
 from models.User import User
 from models import db
-from sqlalchemy import func
+from sqlalchemy import func, case
+
 
 class ReviewService:
     @staticmethod
@@ -71,7 +73,7 @@ class ReviewService:
 
 
     @staticmethod
-    def create_review(user_id,property_id, comment):
+    def create_review(user_id,property_id, comment,sentiment_num):
         # 1. Lấy user
         user = User.query.get(user_id)
         if not user:
@@ -82,7 +84,8 @@ class ReviewService:
             user_id=user_id,
             comment=comment,
             property_id=property_id,
-            created_at=datetime.utcnow()
+            created_at=datetime.utcnow(),
+            sentiment_label=sentiment_num
         )
 
         db.session.add(review)
@@ -94,7 +97,8 @@ class ReviewService:
             "avatar": user.avatar,
             "rating": getattr(review, "rating", None),
             "comment": review.comment,
-            "created_at": review.created_at.strftime("%d/%m/%Y %H:%M")
+            "created_at": review.created_at.strftime("%d/%m/%Y %H:%M"),
+            "sentiment_label": review.sentiment_label
         }
     @staticmethod
     def get_latest_reviews(limit=5):
@@ -148,3 +152,43 @@ class ReviewService:
             for r in rows
         ]
 
+    @staticmethod
+    def get_negative_properties(
+            min_reviews=3,
+            negative_threshold=0.4
+    ):
+        """
+        Lấy các bài đăng có nhiều bình luận tiêu cực
+        sentiment_label = 0 là tiêu cực
+        """
+
+        negative_count = func.sum(
+            case(
+                (Review.sentiment_label == 0, 1),
+                else_=0
+            )
+        )
+
+        total_count = func.count(Review.id)
+
+        query = (
+            db.session.query(
+                Property.id.label("property_id"),
+                Property.title,
+                Property.address,
+                User.name.label("user_name"),
+                User.email.label("user_email"),
+                total_count.label("total_reviews"),
+                (negative_count / total_count).label("negative_ratio"),
+                Property.contacted
+            )
+            .join(Review, Review.property_id == Property.id)
+            .join(User, User.id == Property.user_id)
+            .filter(Review.sentiment_label != 3)  # ❌ loại spam
+            .group_by(Property.id)
+            .having(total_count >= min_reviews)
+            .having((negative_count / total_count) >= negative_threshold)
+            .order_by((negative_count / total_count).desc())
+        )
+
+        return query.all()

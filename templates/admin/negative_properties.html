@@ -4,13 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/admin__base.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/base.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/account/header_account.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/account/sidebar_account.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/account/account_base.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/admin__base.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/base.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/admin_property.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='fonts/fontawesome-free-6.4.0-web/css/all.css' )}}">
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -78,38 +75,43 @@
 
 <body>
 <div class="admin">
-    {% include 'account/header_account.html' %}
+
+    {% include 'admin/header.html' %}
 
     <div class="container">
-    {% include 'account/sidebar_account.html' %}
+    {% include 'admin/sidebar.html' %}
 
 
         <!-- Table Section -->
         <div id="table-container">
-            <h3>Bài đăng của bạn</h3>
+            <h3>Quản lý bài đăng tiêu cực</h3>
             <div class="property_management">
 
                 <table id="propertyTable">
                     <thead>
                     <tr>
-                        <th>Tiêu đề</th>
-                        <th>Ngày đăng</th>
-                        <th>Lượt xem</th>
-                        <th>Lượt bình luận</th>
-                        <th>Ngày hết hạn</th>
+                        <th>ID</th>
+                        <th>Tên bài đăng</th>
+                        <th>Tên người đăng</th>
+                        <th>email liên hệ</th>
+                        <th>Số bình luận</th>
+                        <th>Tỉ lệ tiêu cực</th>
+                        <th>Trạng thái</th>
                     </tr>
                     </thead>
 
                     <tbody>
-                    {%for p in properties %}
+                        {% for p in properties %}
                         <tr>
+                            <td>{{p.property_id}}</td>
                             <td>{{p.title}}</td>
-                            <td>{{p.created_at}}</td>
-                            <td>{{p.views}}</td>
-                            <td>{{p.review_count}}</td>
-                            <td>{{p.expires_at}}</td>
+                            <td>{{p.user_name}}</td>
+                            <td>{{p.user_email}}</td>
+                            <td>{{p.total_comments}}</td>
+                            <td>{{p.negative_ratio}}</td>
+                            <td>{{p.contacted}}</td>
                         </tr>
-                    {% endfor %}
+                        {% endfor %}
                     </tbody>
                 </table>
 

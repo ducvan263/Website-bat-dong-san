@@ -23,6 +23,13 @@ class Property(db.Model):
     views = db.Column(db.Integer,default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    expires_at = db.Column(db.DateTime,default=datetime.utcnow)
+    review_count = db.Column(db.Integer, default=0)
+
+    contacted = db.Column(db.Boolean, default=False)
+    contacted_at = db.Column(db.DateTime)
+    sentiment_flag = db.Column(db.Boolean, default=False)
+
 
     images = db.relationship(
         PropertyImage,  # ✅ class thật

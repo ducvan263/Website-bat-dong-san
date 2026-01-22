@@ -14,16 +14,20 @@ def get_all_property():
 def create_property():
 
     user_id = session.get("user_id")
+    user = UserService.get_user_by_id(user_id)
+    package = user.get_active_package()
     if not user_id:
-        return jsonify({"success": False, "message": "Chưa đăng nhập"}), 401
+        return jsonify({"success": False, "message": "Chưa đăng nhập","event":"login"}), 401
+
+    if user.get_today_post_limit() == 0 :
+        return jsonify({"success":False,"message":"Bạn đã hết số lượt đăng tin trong ngày hôm nay","event":"create"})
 
     prop = PropertyService.create_property(
         form=request.form,
         files=request.files,
-        user_id=user_id
+        user_id=user_id,
+        package=package,
     )
-    user = UserService.get_user_by_id(user_id)
-    print(user.get_today_post_limit())
     user.reduce_post_limit()
     return jsonify({
         "success": True,

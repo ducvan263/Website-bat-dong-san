@@ -179,6 +179,15 @@ function removeDetailImage(index) {
     renderDetailPreviews();
 }
 
+function showPostLimitModal() {
+    document.getElementById("postLimitModal").style.display = "flex";
+    document.body.style.overflow = "hidden";
+}
+
+function closePostLimitModal() {
+    document.getElementById("postLimitModal").style.display = "none";
+    document.body.style.overflow = "auto";
+}
 // ================= AJAX SUBMIT (Sửa theo form của bạn) =================
 // ================= AJAX SUBMIT (Bản sửa lỗi) =================
 document.querySelector("form").addEventListener("submit", function (e) {
@@ -233,7 +242,14 @@ document.querySelector("form").addEventListener("submit", function (e) {
             // Chuyển hướng linh hoạt dựa trên response từ server hoặc vị trí hiện tại
             window.location.href = data.redirect_url || "/";
         } else {
-            alert("❌ Lỗi: " + data.message);
+            const ev = data.event
+            if(ev === 'create')
+                showPostLimitModal();
+                const form = document.getElementById("propertyForm");
+                if (form) {
+                    form.querySelectorAll("input, select, textarea, button")
+                        .forEach(el => el.disabled = true);
+                }
         }
     })
     .catch(err => {

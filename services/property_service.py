@@ -1,6 +1,10 @@
+from datetime import timedelta, datetime
+
+from sqlalchemy import update
+
 from models.District import District
 from models.Property import Property
-import uuid,os
+import os
 from flask import current_app
 from werkzeug.utils import secure_filename
 
@@ -117,7 +121,20 @@ class PropertyService:
         )
 
     @staticmethod
-    def create_property(form, files, user_id):
+    def create_property(form, files, user_id,package):
+        now = datetime.utcnow()
+
+        key = package.package_key if package else 'default'
+
+        if key in ('single', 'default'):
+            expires_at = now + timedelta(days=3)
+        elif key == 'week':
+            expires_at = now + timedelta(days=7)
+        elif key == 'vip':
+            expires_at = now + timedelta(days=30)
+        else:
+            expires_at = None
+
         # 1. map location
         province_id, district_id, ward_id = PropertyService._get_location_ids(
             form.get("province"),
@@ -134,7 +151,8 @@ class PropertyService:
             province_id=province_id,
             district_id=district_id,
             ward_id=ward_id,
-            status="selling"
+            status="selling",
+            expires_at=expires_at
         )
 
         db.session.add(prop)
@@ -182,3 +200,31 @@ class PropertyService:
 
         db.session.commit()
         return prop
+
+    @staticmethod
+    def increase_view(prop_id):
+        db.session.execute(
+            update(Property)
+            .where(Property.id == prop_id)
+            .values(views=Property.views + 1)
+        )
+        db.session.commit()
+
+    @staticmethod
+    def increase_review_count(property_id):
+        prop = Property.query.get(property_id)
+        if not prop:
+            return
+        if not prop.review_count:
+            prop.review_count = 1
+        prop.review_count += 1
+        db.session.commit()
+
+    @staticmethod
+    def decrease_review_count(property_id):
+        db.session.execute(
+            update(Property)
+            .where(Property.id == property_id)
+            .values(review_count=Property.review_count - 1)
+        )
+        db.session.commit()

@@ -80,7 +80,15 @@ def add_property():
 
 @user_bp.route('/posting-plan')
 def posting_plan():
-    return render_template('account/posting_plan.html')
+    user_id = session.get('user_id')
+
+    user = UserService.get_user_by_id(user_id)
+
+    package = user.get_active_package()
+    if not package:
+        return render_template('account/posting_plan.html')
+
+    return render_template('account/posting_plan.html', package=package)
 
 
 
@@ -184,6 +192,9 @@ def update_phone_verified():
     if not user:
         return jsonify({"error": "Người dùng không tồn tại"}), 404
 
+    if phone.startswith("+84"):
+        phone = phone.replace("+84", "0", 1)
+
     user.phone = phone
     user.is_phone_verified = True
     db.session.commit()
@@ -203,3 +214,12 @@ def posted_property():
         'account/posted_property.html',
         properties=properties
     )
+
+@user_bp.route('/payment-history')
+def payment_history():
+    user_id = session.get('user_id')
+    if not user_id:
+        return 'Invalid user', 400
+
+    transactions = UserService.get_transaction_by_user(user_id)
+    return render_template('account/payment_history.html',transactions=transactions)

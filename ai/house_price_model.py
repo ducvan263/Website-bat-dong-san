@@ -60,7 +60,7 @@ class HousePricePredictor:
 
 #
 # # 1. Khởi tạo predictor
-# predictor = HousePricePredictor()
+predictor = HousePricePredictor()
 #
 # # 2. Dữ liệu test Hà Nội
 # test_hn = {

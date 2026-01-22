@@ -683,7 +683,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log(postId)
         if (!comment) return;
 
-        fetch("/reviews", {
+        fetch("/api/reviews", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

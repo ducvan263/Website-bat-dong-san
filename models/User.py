@@ -9,7 +9,7 @@ PACKAGES = {
     "week": {"name": "7 ngày", "price": 59000, "limit": 5, "days": 7, "post_expire_days": 7},
     "vip": {"name": "VIP 30 ngày", "price": 199000, "limit": -1, "days": 30, "post_expire_days": 30},
 }
-DEFAULT_FREE_POSTS_PER_DAY = 2
+DEFAULT_FREE_POSTS_PER_DAY = 1
 
 class User(db.Model):
     __tablename__ = 'users'
