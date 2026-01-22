@@ -68,3 +68,43 @@ Nếu không phải bạn yêu cầu, hãy bỏ qua email này.
     )
 
     mail.send(msg)
+
+def send_property_negative_notice(property_obj, action="hidden"):
+    """
+    action: 'hidden' | 'deleted'
+    """
+    mail = current_app.extensions.get('mail')
+    if not mail:
+        raise RuntimeError("Flask-Mail chưa được khởi tạo!")
+
+    app_url = request.host_url.rstrip('/')
+    property_url = f"{app_url}/property/{property_obj.id}"
+
+    if action == "hidden":
+        subject = "Bài đăng của bạn đã bị ẩn do nhiều bình luận tiêu cực"
+        action_text = "đã bị ẩn tạm thời"
+    else:
+        subject = "Bài đăng của bạn đã bị xóa do vi phạm chất lượng"
+        action_text = "đã bị xóa"
+
+    msg = Message(
+        subject=subject,
+        sender=current_app.config.get('MAIL_USERNAME'),
+        recipients=[property_obj.user.email],
+        body=f"""
+Xin chào {property_obj.user.email},
+
+Bài đăng: "{property_obj.title}"
+{action_text} do nhận được nhiều bình luận tiêu cực từ người dùng.
+
+Link bài đăng:
+{property_url}
+
+Nếu bạn cho rằng đây là nhầm lẫn, vui lòng liên hệ với bộ phận quản trị để được hỗ trợ.
+
+Trân trọng,
+Ban quản trị hệ thống
+"""
+    )
+
+    mail.send(msg)

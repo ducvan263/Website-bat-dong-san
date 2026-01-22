@@ -1,4 +1,7 @@
+from sqlalchemy import join
+
 from models import db
+from models.Property import Property
 from models.Transaction import Transaction
 from models.User import User
 from models.UserPackage import UserPackage
@@ -61,3 +64,4 @@ class UserService:
     def get_transaction_by_user(user_id):
         rows = db.session.query(Transaction).filter(Transaction.user_id == user_id).all()
         return rows
+

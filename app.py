@@ -49,7 +49,7 @@ def create_app():
         MAIL_PORT=587,
         MAIL_USE_TLS=True,
         MAIL_USERNAME='22130050@st.hcmuaf.edu.vn',
-        MAIL_PASSWORD='cvbg zvld ccta wgqj'
+        MAIL_PASSWORD='qffe gonz ykmm sefl'
     )
     mail.init_app(app)
 

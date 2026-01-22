@@ -29,7 +29,7 @@ class Property(db.Model):
     contacted = db.Column(db.Boolean, default=False)
     contacted_at = db.Column(db.DateTime)
     sentiment_flag = db.Column(db.Boolean, default=False)
-
+    is_hidden = db.Column(db.Boolean, default=False)
 
     images = db.relationship(
         PropertyImage,  # ✅ class thật
@@ -56,3 +56,8 @@ class Property(db.Model):
             return f"{price:,}"
         return "Thỏa thuận"
 
+    @staticmethod
+    def convert_state(state):
+        if state:
+            return "Đã bị ẩn"
+        return "Đã đăng"

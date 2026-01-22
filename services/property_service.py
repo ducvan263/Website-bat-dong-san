@@ -12,6 +12,7 @@ from models.PropertyAttribute import PropertyAttribute
 from models.PropertyDetail import PropertyDetail
 from models.PropertyImage import PropertyImage
 from models.Province import Province
+from models.User import User
 from models.Ward import Ward
 from models import db
 
@@ -228,3 +229,24 @@ class PropertyService:
             .values(review_count=Property.review_count - 1)
         )
         db.session.commit()
+
+    @staticmethod
+    def update_display_state(property_id, state: bool):
+        result = db.session.execute(
+            update(Property)
+            .where(Property.id == property_id)
+            .values(is_hidden=state)
+        )
+        db.session.commit()
+
+        return result.rowcount > 0
+
+    @staticmethod
+    def get_by_property_id(property_id):
+        row = (
+            db.session.query(Property)
+            .filter(Property.id == property_id)
+            .join(User, User.id == Property.user_id)
+        )
+
+        return row

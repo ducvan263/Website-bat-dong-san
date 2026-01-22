@@ -1,7 +1,10 @@
-from flask import Blueprint, render_template, session, redirect, url_for, flash
+from flask import Blueprint, render_template, session, redirect, url_for, flash, request
+
+from models.Property import Property
 from services.property_service import PropertyService
 from services.review_service import ReviewService
 from services.user_service import UserService
+from services.email_service import send_property_negative_notice
 
 admin_bp = Blueprint(
     'admin',
@@ -61,6 +64,7 @@ def admin_negative_properties():
             "address": r.address,
             "user_name" : r.user_name,
             "user_email" : r.user_email,
+            "state" : Property.convert_state(r.is_hidden),
             "total_comments": r.total_reviews,
             "negative_ratio": round(r.negative_ratio * 100, 1),
             "contacted": r.contacted
@@ -70,3 +74,29 @@ def admin_negative_properties():
         "admin/negative_properties.html",
         properties=properties
     )
+@admin_bp.route('/property/<property_id>/hide',methods=['POST'])
+def admin_property_hide(property_id):
+    if not property_id :
+        return redirect(url_for('404.html'))
+
+    res = PropertyService.update_display_state(property_id, True)
+    if res :
+        property = PropertyService.get_property_by_id(property_id)
+        send_property_negative_notice(property,'hidden')
+
+    return render_template(
+        "admin/negative_properties.html"
+    )
+@admin_bp.route('/property/<property_id>/visible',methods=['POST'])
+def admin_property_visible(property_id):
+    if not property_id :
+        return redirect(url_for('404.html'))
+
+    res = PropertyService.update_display_state(property_id,False)
+
+
+
+    return render_template(
+        "admin/negative_properties.html"
+    )
+

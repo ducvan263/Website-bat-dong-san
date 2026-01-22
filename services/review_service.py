@@ -176,6 +176,7 @@ class ReviewService:
                 Property.id.label("property_id"),
                 Property.title,
                 Property.address,
+                Property.is_hidden,
                 User.name.label("user_name"),
                 User.email.label("user_email"),
                 total_count.label("total_reviews"),
@@ -184,7 +185,7 @@ class ReviewService:
             )
             .join(Review, Review.property_id == Property.id)
             .join(User, User.id == Property.user_id)
-            .filter(Review.sentiment_label != 3)  # ❌ loại spam
+            .filter(Review.sentiment_label != 3)
             .group_by(Property.id)
             .having(total_count >= min_reviews)
             .having((negative_count / total_count) >= negative_threshold)

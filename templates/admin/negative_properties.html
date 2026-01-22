@@ -18,6 +18,9 @@
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
 
+    <link rel="stylesheet"
+      href="{{ url_for('static',filename='css/fonts/fontawesome-free-6.4.0-web/css/all.css' )}}">
+
     <title>Admin</title>
 
     <style>
@@ -97,6 +100,7 @@
                         <th>Số bình luận</th>
                         <th>Tỉ lệ tiêu cực</th>
                         <th>Trạng thái</th>
+                        <th>Thao Tác</th>
                     </tr>
                     </thead>
 
@@ -109,8 +113,29 @@
                             <td>{{p.user_email}}</td>
                             <td>{{p.total_comments}}</td>
                             <td>{{p.negative_ratio}}</td>
-                            <td>{{p.contacted}}</td>
-                        </tr>
+                            <td>{{p.state}}</td>
+                            <td class="action-cell">
+                                <div class="action-wrapper">
+                                    <i class="fa-solid fa-ellipsis action-btn"
+                                       onclick="toggleActionMenu(event, {{ p.property_id }})"></i>
+
+                                    <div class="action-menu" id="action-menu-{{ p.property_id }}">
+                                     {% if p.state == 'Đã bị ẩn' %}
+                                        <button onclick="visiblePost({{ p.property_id }})">
+                                            <i class="fa-solid fa-eye"></i> Hiện bài đăng
+                                        </button>
+                                    {% else %}
+                                        <button onclick="hidePost({{ p.property_id }})">
+                                            <i class="fa-solid fa-eye-slash"></i> Ẩn bài đăng
+                                        </button>
+                                    {% endif %}
+
+                                        <button class="danger" onclick="deletePost({{ p.property_id }})">
+                                            <i class="fa-solid fa-trash"></i> Xóa bài đăng
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -134,8 +159,46 @@
     });
 </script>
 
-</body>
-</html>
+<script>
+function toggleActionMenu(event, id) {
+    event.stopPropagation();
+
+    // đóng tất cả popup khác
+    document.querySelectorAll('.action-menu').forEach(menu => {
+        menu.style.display = 'none';
+    });
+
+    const menu = document.getElementById(`action-menu-${id}`);
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+// click ra ngoài thì đóng
+document.addEventListener('click', function () {
+    document.querySelectorAll('.action-menu').forEach(menu => {
+        menu.style.display = 'none';
+    });
+});
+
+/* ====== ACTIONS ====== */
+function hidePost(id) {
+    if (!confirm("Bạn có chắc muốn ẩn bài đăng này?")) return;
+
+    fetch(`/admin/property/${id}/hide`, { method: "POST" })
+        .then(res => location.reload());
+}
+function visiblePost(id) {
+
+    fetch(`/admin/property/${id}/visible`, { method: "POST" })
+        .then(res => location.reload());
+}
+function deletePost(id) {
+    if (!confirm("Xóa bài đăng sẽ không thể khôi phục!")) return;
+
+    fetch(`/admin/property/${id}/delete`, { method: "POST" })
+        .then(res => location.reload());
+}
+</script>
 
 </body>
 </html>
+
