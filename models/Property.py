@@ -61,3 +61,6 @@ class Property(db.Model):
         if state:
             return "Đã bị ẩn"
         return "Đã đăng"
+
+    def __repr__(self):
+        return f"<Property id={self.id} user_id={self.user_id}>"

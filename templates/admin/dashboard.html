@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/admin__base.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/base.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/admin_property.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='fonts/fontawesome-free-6.4.0-web/css/all.css' )}}">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <title>Admin</title>
+
+    <style>
+        .dt-header,
+        .dt-info {
+            font-size: 1.6rem;
+        }
+        .revenue-dashboard {
+    padding: 16px;
+}
+
+/* Cards */
+.revenue-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.revenue-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.revenue-card.vip {
+    border-left: 5px solid #f5b400;
+}
+
+.card-title {
+    font-size: 1.4rem;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+.card-value {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #222;
+}
+
+.card-desc {
+    font-size: 1.2rem;
+    color: #999;
+    margin-top: 4px;
+}
+
+/* Table */
+.revenue-table {
+    background: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.revenue-table h4 {
+    margin-bottom: 12px;
+    font-size : 1.6rem;
+}
+
+.revenue-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.revenue-table th,
+.revenue-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    font-size: 1.4rem;
+}
+
+.revenue-table th {
+    background: #f7f7f7;
+}
+
+.money {
+    font-weight: bold;
+    color: #2e7d32;
+}
+
+.success {
+    color: #2e7d32;
+    font-weight: 500;
+}
+.revenue-chart {
+    background: #fff;
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+}
+
+.revenue-chart h4 {
+    margin-bottom: 12px;
+    font-size: 1.6rem;
+}
+
+    </style>
+
+    <script>
+
+        /* ============================
+           3. Menu admin
+        ============================= */
+        document.addEventListener('DOMContentLoaded', function () {
+            const navUser = document.querySelector('.nav__admin');
+            const dropdownMenu = document.querySelector('.nav__form-admin');
+
+            navUser.addEventListener('click', function (event) {
+                event.stopPropagation();
+                dropdownMenu.style.display =
+                    dropdownMenu.style.display === 'block' ? 'none' : 'block';
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!navUser.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                    dropdownMenu.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+</head>
+
+<body>
+<div class="admin">
+
+    {% include 'admin/header.html' %}
+
+    <div class="container">
+    {% include 'admin/sidebar.html' %}
+
+
+        <!-- Table Section -->
+        <div id="table-container">
+            <h3>Thống kê Danh thu</h3>
+            <div class="property_management">
+                <div class="revenue-dashboard">
+
+                <!-- Tổng quan -->
+                <div class="revenue-cards">
+                    <div class="revenue-card">
+                        <div class="card-title">Tổng doanh thu</div>
+                        <div class="card-value">{{total_revenue}} ₫</div>
+                        <div class="card-desc">Toàn thời gian</div>
+                    </div>
+
+                    <div class="revenue-card vip">
+                        <div class="card-title">Doanh thu VIP</div>
+                        <div class="card-value">{{vip_revenue}} ₫</div>
+                        <div class="card-desc">Gói VIP</div>
+                    </div>
+
+                    <div class="revenue-card">
+                        <div class="card-title">Tháng hiện tại</div>
+                        <div class="card-value">{{current_month_revenue}} ₫</div>
+                        <div class="card-desc">Tháng {{ current_month }}</div>
+                    </div>
+
+                    <div class="revenue-card">
+                        <div class="card-title">Hôm nay</div>
+                        <div class="card-value">{{today_revenue}} ₫</div>
+                        <div class="card-desc">Cập nhật realtime</div>
+                    </div>
+                </div>
+                <div class="revenue-chart">
+                    <h4>Doanh thu theo tháng</h4>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                <!-- Bảng chi tiết -->
+                <div class="revenue-table">
+                    <h4>Chi tiết doanh thu</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ngày</th>
+                                <th>Người dùng</th>
+                                <th>Gói</th>
+                                <th>Số tiền</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for i,email in items %}
+                            <tr>
+                                <td>{{i.created_at}}</td>
+                                <td>{{email}}</td>
+                                <td>{{i.package}}</td>
+                                <td class="money">{{i.amount}}</td>
+                                <td class="success">{{i.status}}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+<!-- DataTable init -->
+<script>
+    $(document).ready(function () {
+        let table = $('#propertyTable').DataTable();
+
+      $('.dataTables_length').addClass('dt-header');
+          $('.dt-search').append(
+            '<a href="/admin/add-property" class="add-link">Thêm mới</a>'
+        );
+    });
+</script>
+<script>
+    const ctx = document
+        .getElementById('revenueChart')
+        .getContext('2d');
+
+    const revenueData = {{ monthly_data | tojson | safe }};
+    const vipRevenueData = {{ monthly_vip_data | tojson | safe }};
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [
+                'T1','T2','T3','T4','T5','T6',
+                'T7','T8','T9','T10','T11','T12'
+            ],
+            datasets: [
+                {
+                    label: 'Tổng doanh thu (VNĐ)',
+                    data: revenueData,
+                    backgroundColor: '#4caf50'
+                },
+                {
+                    label: 'Doanh thu VIP (VNĐ)',
+                    data: vipRevenueData,
+                    backgroundColor: '#f5b400'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            return ctx.dataset.label + ': ' +
+                                new Intl.NumberFormat('vi-VN')
+                                .format(ctx.raw) + ' ₫';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: v =>
+                            new Intl.NumberFormat('vi-VN').format(v) + ' ₫'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

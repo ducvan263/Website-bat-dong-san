@@ -316,7 +316,7 @@
                 <li>Phòng Tập Gym</li>
                 <li>Khu Picnic</li>
                </ul>
-<div class="contact_info">
+                <div class="contact_info">
     <h4>Thông tin liên hệ</h4>
 
     <h5>Số điện thoại:</h5>
@@ -393,56 +393,32 @@
               </div>
               <div class="aa-nearby-properties-area">
                 <div class="row">
+                    {% for spp in same_province_properties %}
                   <div class="col-md-6">
                     <article class="aa-properties-item">
                        <a class="aa-properties-item-img" href="#">
-                         <img alt="img" src="img/item/living_7.jpg">
+                         <img alt="img" src="{{url_for('static',filename=spp.thumbnail)}}">
                        </a>
                        <div class="aa-tag for-sale">
                          For Sale
                        </div>
                        <div class="aa-properties-item-content">
                          <div class="aa-properties-about">
-                           <h3><a href="#">Eco Dream</a></h3>
+                           <h3><a class="aa-properties-about-title" href="#">{{spp.title}}</a></h3>
                            <div class="b__main--rows">
-                            <p class="b__address">Thanh Trì, Hà Nội</p>
-                            <label>Chung Cư</label>
+                            <p class="aa-properties-about-address b__address">{{spp.address}}</p>
                           </div>
                          </div>
                          <div class="aa-properties-detial">
                            <span class="aa-price">
-                             3 tỷ
+                             {{spp.price_vn}}
                            </span>
                            <a class="aa-secondary-btn" href="properties-detail-eco.html">Xem Chi Tiết</a>
                          </div>
                        </div>
                      </article>
                   </div>
-                  <div class="col-md-6">
-                    <article class="aa-properties-item">
-                     <a class="aa-properties-item-img" href="#">
-                       <img alt="img" src="img/item/living_5.jpg">
-                     </a>
-                     <div class="aa-tag for-sale">
-                       For Sale
-                     </div>
-                     <div class="aa-properties-item-content">
-                       <div class="aa-properties-about">
-                         <h3><a href="#">Mizuki Park</a></h3>
-                         <div class="b__main--rows">
-                          <p class="b__address">Đống Đa, Hà Nội</p>
-                          <label>Chung Cư</label>
-                        </div>
-                       </div>
-                       <div class="aa-properties-detial">
-                         <span class="aa-price">
-                           3,2 tỷ
-                         </span>
-                         <a class="aa-secondary-btn" href="properties-detail-mizuki.html">Xem Chi Tiết</a>
-                       </div>
-                     </div>
-                   </article>
-                  </div>
+                    {%endfor%}
                 </div>
               </div>
             </div>
@@ -512,43 +488,20 @@
             </div> 
             <!-- Start Single properties sidebar -->
             <div class="aa-properties-single-sidebar">
-              <h3>Căn Hộ Phổ Biến</h3>
+              <h3>Căn Hộ Mới Nhất</h3>
+                {%for lp in latest_property%}
               <div class="media">
                 <div class="media-left">
                   <a href="properties-detail-metro.html">
-                    <img class="media-object" src="img/slider/overview%20(10).jpg" alt="img">
+                    <img class="media-object" src="{{url_for('static',filename=lp.thumbnail)}}" alt="img">
                   </a>
                 </div>
                 <div class="media-body">
-                  <h4 class="media-heading"><a href="properties-detail-metro.html">Metro Star</a></h4>
-                  <p>Quận Bình Thạnh, TP.HCM</p>
-                  <span>1,5 tỷ</span>
+                  <h4 class="aa-properties-about-title media-heading"><a href="properties-detail-metro.html">{{lp.title}}</a></h4>
+                  <span>{{lp.price_vn}}</span>
                 </div>              
               </div>
-              <div class="media">
-                <div class="media-left">
-                  <a href="properties-detail-lavita.html">
-                    <img class="media-object" src="img/slider/overview%20(8).jpg" alt="img">
-                  </a>
-                </div>
-                <div class="media-body">
-                  <h4 class="media-heading"><a href="properties-detail-lavita.html">Lavita Charm</a></h4>
-                  <p>Quận 7, TP.HCM</p>
-                  <span>4,5 tỷ</span>
-                </div>              
-              </div>
-              <div class="media">
-                <div class="media-left">
-                  <a href="properties-detail-sunshine-city.html">
-                    <img class="media-object" src="img/slider/overview%20(3).jpg" alt="img">
-                  </a>
-                </div>
-                <div class="media-body">
-                  <h4 class="media-heading"><a href="properties-detail-sunshine-city.html">Sunshine City</a></h4>
-                  <p>Linh Trung, Thủ Đức</p>
-                  <span>2,5 tỷ</span>
-                </div>              
-              </div>
+                {%endfor%}
             </div>
           </aside>
         </div>

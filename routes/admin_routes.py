@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, session, redirect, url_for, flash,
 from models.Property import Property
 from services.property_service import PropertyService
 from services.review_service import ReviewService
+from services.transaction_service import TransactionService
 from services.user_service import UserService
 from services.email_service import send_property_negative_notice
 
@@ -21,9 +22,30 @@ def check_admin_role():
 # Routes bình thường
 @admin_bp.route('/')
 def admin_home():
+    pagination = TransactionService.get_transactions_paginated()
+    total_revenue = TransactionService.get_total_revenue()
+    vip_revenue = TransactionService.get_vip_revenue()
+    today_revenue = TransactionService.get_today_revenue()
+    current_month_revenue = TransactionService.get_current_month_revenue()
+
+    monthly_data = TransactionService.get_monthly_revenue()
+    monthly_vip_data = TransactionService.get_monthly_vip_revenue()
+
+    return render_template(
+        'admin/dashboard.html',
+        total_revenue=total_revenue,
+        vip_revenue=vip_revenue,
+        today_revenue=today_revenue,
+        current_month_revenue=current_month_revenue,
+        monthly_data=monthly_data,
+        monthly_vip_data=monthly_vip_data,
+        items=pagination['items']
+    )
+@admin_bp.route('/properties')
+def admin_property():
     properies = PropertyService.get_all_property()
     return render_template(
-        'admin/home-management.html',
+        'admin/property-management.html',
         properties=properies,
     )
 
@@ -35,7 +57,6 @@ def admin_management():
 def admin_add_property():
     return render_template('add-property.html',action_url='/admin/properties/create'
 )
-
 @admin_bp.route('/review-management')
 def admin_review_management():
     reviews= ReviewService.get_all_reviews()

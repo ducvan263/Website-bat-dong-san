@@ -24,6 +24,7 @@ from models.Province import Province
 from models.PropertyType import PropertyType
 import os,time
 
+from services.transaction_service import TransactionService
 from services.user_service import UserService
 
 # =========================
@@ -127,13 +128,18 @@ def create_app():
             PropertyService.increase_view(property_id)
             session[key] = now
 
-        reviews = ReviewService.get_review_by_property_id(property_id)
+        same_province_properties = PropertyService.get_2_properties_same_province(property_id)
+        latest_property = PropertyService.get_latest_properties(5)
 
+        reviews = ReviewService.get_review_by_property_id(property_id)
+        print(prop)
         return render_template(
             'properties-detail.html',
             property=prop,
             reviews=reviews,
-            images=prop.images
+            images=prop.images,
+            latest_property=latest_property,
+            same_province_properties=same_province_properties
         )
 
     @app.route('/properties')
@@ -373,7 +379,7 @@ def create_app():
     @app.route('/test')
     def test():
         print("test")
-        review = UserService.get_transaction_by_user(1)
+        review = TransactionService.get_total_revenue()
         print(review)
 
         return jsonify("")

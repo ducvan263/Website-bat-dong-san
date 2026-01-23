@@ -6,8 +6,8 @@
 <body>
         <div class="sidebar">
             <h3>Trang chủ admin</h3>
-            <a class="{{ 'sidebar--active' if request.endpoint == '' else '' }}"
-               href="">
+            <a class="{{ 'sidebar--active' if request.endpoint == 'admin.admin_home' else '' }}"
+                       href="{{ url_for('admin.admin_home') }}">
                Tổng quan
             </a>
            <div class="sidebar-dropdown">
@@ -17,8 +17,8 @@
                 </div>
 
                 <div class="sidebar-dropdown__menu" id="postMenu">
-                    <a class="{{ 'sidebar--active' if request.endpoint == 'admin.admin_home' else '' }}"
-                       href="{{ url_for('admin.admin_home') }}">
+                    <a class="{{ 'sidebar--active' if request.endpoint == 'admin.admin_property' else '' }}"
+                       href="{{ url_for('admin.admin_property') }}">
                         Tất cả bài đăng
                     </a>
                     <a class="{{ 'sidebar--active' if request.endpoint == 'admin.admin_negative_properties' else '' }}"

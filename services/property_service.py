@@ -45,6 +45,31 @@ class PropertyService:
             "current_page": page
         }
 
+    @staticmethod
+    def get_2_properties_same_province(property_id):
+        current_property = Property.query.get(property_id)
+        if not current_property:
+            return []
+
+        province_id = current_property.province_id
+
+        properties = (
+            Property.query
+            .filter(
+                Property.id != property_id,
+                Property.province_id == province_id,
+                Property.is_hidden == False
+            )
+            .order_by(
+                Property.is_vip.desc(),
+                Property.created_at.desc()
+            )
+            .limit(2)
+            .all()
+        )
+
+        return properties
+
     def property_to_text(p: Property, include_private=False):
         text = (
             f"{p.title}. "
