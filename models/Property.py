@@ -30,7 +30,7 @@ class Property(db.Model):
     contacted_at = db.Column(db.DateTime)
     sentiment_flag = db.Column(db.Boolean, default=False)
     is_hidden = db.Column(db.Boolean, default=False)
-
+    is_vip = db.Column(db.Boolean, default=False)
     images = db.relationship(
         PropertyImage,  # ✅ class thật
         backref="property",

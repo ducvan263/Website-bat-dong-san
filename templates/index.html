@@ -283,12 +283,17 @@
                 <div class="col-md-4">
                     <article class="aa-properties-item">
                         <a href="#" class="aa-properties-item-img">
-                            <img src="{{ url_for('static', filename=p.thumbnail  )}}" alt="img">
+                            <img class="{{ 'img--for-vip' if p.is_vip else '' }}" src="{{ url_for('static', filename=p.thumbnail  )}}" alt="img">
 <!--                            <img src={{ p.thumbnail  }} alt="img">-->
                         </a>
                         <div class="aa-tag for-sale">
                             {{ p.status }}
                         </div>
+                        {% if p.is_vip %}
+                        <div class="for-vip">
+                            Vip
+                        </div>
+                        {% endif %}
                         <div class="aa-properties-item-content">
                             <div class="aa-properties-about">
                                 <h3 class="aa-properties-about-title"><a href="#">{{ p.title }}</a></h3>

@@ -28,7 +28,10 @@ class PropertyService:
         return Property.query.filter_by(user_id=user_id).all()
     @staticmethod
     def get_properties_paginated(page=1, per_page=6):
-        query = Property.query.order_by(Property.created_at.desc())
+        query = Property.query.order_by(
+            Property.is_vip.desc(),
+            Property.created_at.desc()
+        )
 
         total = query.count()  # tổng số bản ghi
         properties = query.offset((page - 1) * per_page).limit(per_page).all()
@@ -127,14 +130,17 @@ class PropertyService:
 
         key = package.package_key if package else 'default'
 
+        is_vip = False
         if key in ('single', 'default'):
             expires_at = now + timedelta(days=3)
         elif key == 'week':
             expires_at = now + timedelta(days=7)
         elif key == 'vip':
             expires_at = now + timedelta(days=30)
+            is_vip = True
         else:
             expires_at = None
+
 
         # 1. map location
         province_id, district_id, ward_id = PropertyService._get_location_ids(
@@ -153,7 +159,8 @@ class PropertyService:
             district_id=district_id,
             ward_id=ward_id,
             status="selling",
-            expires_at=expires_at
+            expires_at=expires_at,
+            is_vip=is_vip
         )
 
         db.session.add(prop)

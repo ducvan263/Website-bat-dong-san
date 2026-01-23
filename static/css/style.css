@@ -872,7 +872,18 @@
     .aa-properties-item .sold-out {
         background-color: #ff0000;
     }
-    
+    .aa-properties-item .for-vip {
+        color: #fff;
+        padding: 6px 10px;
+        position: absolute;
+        border-radius: 4px;
+        top : -15px;
+        right : 5px;
+        background-color: gold;
+    }
+    .img--for-vip{
+        border : 1px solid gold;
+    }
     .aa-properties-item .aa-properties-item-content {
         background-color: #fff;
         border: 1px solid #ddd;
