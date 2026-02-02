@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='css/account/sidebar_account.css') }}">
     <link rel="stylesheet" href="{{ url_for('static',filename='css/account/account_base.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -153,52 +153,84 @@
         color: #4f46e5;
     }
 }
+/* =========================
+   COMMENT MODAL
+========================= */
+.comment-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
 
+.comment-modal__content {
+    background: #fff;
+    width: 600px;
+    max-width: 90%;
+    border-radius: 12px;
+    padding: 20px;
+    font-size : 1.4rem;
+}
+
+.comment-modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comment-modal__header h4 {
+    font-size: 1.8rem;
+}
+
+.comment-modal__close {
+    cursor: pointer;
+    font-size: 2rem;
+}
+
+.comment-list {
+    margin-top: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.comment-item {
+    padding: 10px 5px;
+    border-bottom: 1px solid #e5e7eb;
+    display : flex;
+    justify-content : space-between;
+}
+
+.comment-item strong {
+    color: #4f46e5;
+}
+.comment-count {
+    cursor: pointer;
+    color: #4f46e5;
+    font-weight: 600;
+}
+.comment-count:hover {
+    text-decoration: underline;
+}
+.report-comment {
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 1.4rem;
+    opacity: 0;
+    transition: all 0.2s ease;
+}
+
+.comment-item:hover .report-comment {
+    opacity: 1;
+}
+
+.report-comment:hover {
+    color: #ef4444;
+}
     </style>
 
-    <script>
-        /* ============================
-           1. Toggle form thêm
-        ============================= */
-        function addPropertyForm() {
-            const form = document.getElementById("addPropertyForm");
-            const table = document.getElementById("table-container");
-
-            form.style.display = form.style.display === "block" ? "none" : "block";
-            table.style.display = table.style.display === "none" ? "block" : "none";
-        }
-
-        /* ============================
-           2. Toggle form sửa
-        ============================= */
-        function editPropertyForm() {
-            const form = document.getElementById("editPropertyForm");
-            const table = document.getElementById("table-container");
-
-            form.style.display = form.style.display === "block" ? "none" : "block";
-            table.style.display = table.style.display === "none" ? "block" : "none";
-        }
-
-        /* ============================
-           3. Menu admin
-        ============================= */
-        document.addEventListener('DOMContentLoaded', function () {
-            const navUser = document.querySelector('.nav__admin');
-            const dropdownMenu = document.querySelector('.nav__form-admin');
-
-            navUser.addEventListener('click', function (event) {
-                event.stopPropagation();
-                dropdownMenu.style.display =
-                    dropdownMenu.style.display === 'block' ? 'none' : 'block';
-            });
-
-            document.addEventListener('click', function (event) {
-                if (!navUser.contains(event.target) && !dropdownMenu.contains(event.target)) {
-                    dropdownMenu.style.display = 'none';
-                }
-            });
-        });
-    </script>
 
 </head>
 
@@ -232,7 +264,12 @@
                             <td>{{p.title}}</td>
                             <td>{{p.created_at}}</td>
                             <td>{{p.views}}</td>
-                            <td>{{p.review_count}}</td>
+                            <td>
+                                <span class="comment-count"
+                                      data-property-id="{{ p.id }}">
+                                    {{ p.review_count }}
+                                </span>
+                            </td>
                             <td>{{p.expires_at}}</td>
                         </tr>
                     {% endfor %}
@@ -257,9 +294,102 @@
 
     });
 </script>
+<div class="comment-modal" id="commentModal">
+    <div class="comment-modal__content">
+        <div class="comment-modal__header">
+            <h4>Bình luận chi tiết</h4>
+            <span class="comment-modal__close">&times;</span>
+        </div>
 
+        <div class="comment-list" id="commentList">
+            <!-- JS render -->
+        </div>
+    </div>
+</div>
 </body>
+<script>
+
+$(document).ready(function () {
+    let table = $('#propertyTable').DataTable();
+
+    // Click vào lượt bình luận
+    $('#propertyTable').on('click', '.comment-count', function () {
+        const propertyId = $(this).data('property-id');
+
+        $('#commentList').html('<p>Đang tải bình luận...</p>');
+
+        $('#commentModal')
+            .css('display', 'flex')
+            .hide()
+            .fadeIn(200);
+        $.ajax({
+            url: `/property/${propertyId}/comments`,
+            method: 'GET',
+            success: function (data) {
+                if (data.length === 0) {
+                    $('#commentList').html('<p>Chưa có bình luận</p>');
+                    return;
+                }
+
+                let html = '';
+                data.forEach(c => {
+                    html += `
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <strong>${c.user_name}</strong>
+                                <p class="comment-content">${c.comment}</p>
+                                <small>${c.created_at}</small>
+                            </div>
+                                <span class="report-comment"
+                                      title="Báo cáo bình luận"
+                                      data-comment-id="${c.id}">
+                                    <i class="fa-solid fa-flag"></i>
+                                </span>
+
+
+                        </div>
+                        `;
+                });
+
+                $('#commentList').html(html);
+            },
+            error: function () {
+                $('#commentList').html('<p>Lỗi khi tải bình luận</p>');
+            }
+        });
+    });
+
+    // Đóng popup
+    $('.comment-modal__close, #commentModal').on('click', function (e) {
+        if (e.target.id === 'commentModal' || $(e.target).hasClass('comment-modal__close')) {
+            $('#commentModal').fadeOut();
+        }
+    });
+});
+    $('#commentList').on('click', '.report-comment', function (e) {
+    e.stopPropagation();
+
+    const commentId = $(this).data('comment-id');
+
+    if (!confirm('Bạn muốn báo cáo bình luận này?')) return;
+
+    $.ajax({
+        url: `/comments/${commentId}/report`,
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            reason: 'Nội dung không phù hợp'
+        }),
+        success: function (res) {
+            alert(res.message);
+        },
+        error: function (xhr) {
+            alert(xhr.responseJSON.message);
+        }
+    });
+});
+
+</script>
+
 </html>
 
-</body>
-</html>

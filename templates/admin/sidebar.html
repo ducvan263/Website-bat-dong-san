@@ -29,10 +29,24 @@
             </div>
 
 
-            <a class="{{ 'sidebar--active' if request.endpoint == 'admin.admin_review_management' else '' }}"
-               href="{{ url_for('admin.admin_review_management') }}">
-               Quản lý bài đánh giá
-            </a>
+           <div class="sidebar-dropdown">
+                <div class="sidebar-dropdown__title" onclick="toggleReviewMenu()">
+                    Quản lý bài đánh giá
+                    <span class="arrow" id="reviewArrow">▾</span>
+                </div>
+
+                <div class="sidebar-dropdown__menu" id="reviewMenu">
+                    <a class="{{ 'sidebar--active' if request.endpoint == 'admin.admin_review_management' else '' }}"
+                       href="{{ url_for('admin.admin_review_management') }}">
+                        Tất cả đánh giá
+                    </a>
+
+                    <a class="{{ 'sidebar--active' if request.endpoint == 'admin.admin_review_report' else '' }}"
+                       href="{{ url_for('admin.admin_review_report') }}">
+                        Bình luận bị báo cáo
+                    </a>
+                </div>
+            </div>
 
             <a class="{{ 'sidebar--active' if request.endpoint == 'admin.admin_user_management' else '' }}"
                href="{{ url_for('admin.admin_user_management') }}">
@@ -41,9 +55,18 @@
 
         </div>
 <script>
-function togglePostMenu() {
+
+    function togglePostMenu() {
     const menu = document.getElementById("postMenu");
     const arrow = document.getElementById("postArrow");
+
+    menu.classList.toggle("active");
+    arrow.classList.toggle("rotate");
+}
+
+function toggleReviewMenu() {
+    const menu = document.getElementById("reviewMenu");
+    const arrow = document.getElementById("reviewArrow");
 
     menu.classList.toggle("active");
     arrow.classList.toggle("rotate");

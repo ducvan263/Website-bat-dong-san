@@ -2,6 +2,7 @@ from datetime import datetime
 
 from models.Property import Property
 from models.Review import Review
+from models.ReviewReport import ReviewReport
 from models.User import User
 from models import db
 from sqlalchemy import func, case
@@ -142,7 +143,7 @@ class ReviewService:
         )
 
         return [
-            {
+            {   "id" : r.id,
                 "user_name": r.user.name,
                 "avatar" : r.user.avatar,
                 "rating": r.rating,
@@ -193,3 +194,15 @@ class ReviewService:
         )
 
         return query.all()
+    @staticmethod
+    def delete_review(review_id):
+        review = Review.query.get(review_id)
+        if not review:
+            return False
+
+        ReviewReport.query.filter_by(review_id=review_id).delete()
+
+        db.session.delete(review)
+        db.session.commit()
+
+        return True

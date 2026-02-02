@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, session, redirect, url_for, flash, request
+from flask import Blueprint, render_template, session, redirect, url_for, flash, request, jsonify
 
 from models.Property import Property
 from services.property_service import PropertyService
 from services.review_service import ReviewService
+from services.reviewreport_service import ReviewReportService
 from services.transaction_service import TransactionService
 from services.user_service import UserService
 from services.email_service import send_property_negative_notice
@@ -121,3 +122,23 @@ def admin_property_visible(property_id):
         "admin/negative_properties.html"
     )
 
+@admin_bp.route('/review-report')
+def admin_review_report():
+    review_report = ReviewReportService.get_all_reviews()
+    return render_template(
+        'admin/review-report.html',
+        review_report=review_report
+    )
+
+@admin_bp.route('/reviews/<int:review_id>/delete', methods=['DELETE'])
+def delete_review(review_id):
+    success = ReviewService.delete_review(review_id)
+
+    if not success:
+        return jsonify({
+            "message": "Không tìm thấy bình luận"
+        }), 404
+
+    return jsonify({
+        "message": "Đã xóa bình luận"
+    })

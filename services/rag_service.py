@@ -16,9 +16,7 @@ class RAGService:
     def build_context(user_text, session):
         followup = RAGService.is_followup_question(user_text)
 
-        # =============================
         # CASE 1: FOLLOW-UP QUESTION
-        # =============================
         if followup:
             property_ids = session.get("last_property_ids")
 
@@ -48,7 +46,7 @@ class RAGService:
         if not properties:
             return "KHÔNG CÓ DỮ LIỆU PHÙ HỢP.", []
 
-        include_private = followup  # 🔥 chỉ bật khi hỏi link / liên hệ
+        include_private = followup  # chỉ bật khi hỏi link / liên hệ
 
         context = "\n".join(
             PropertyService.property_to_text(

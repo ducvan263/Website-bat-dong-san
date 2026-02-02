@@ -8,6 +8,8 @@ from models.Transaction import Transaction
 from models.User import User, PACKAGES
 from models.UserPackage import UserPackage
 from services.property_service import PropertyService
+from services.review_service import ReviewService
+from services.reviewreport_service import ReviewReportService
 from services.user_service import UserService
 
 user_bp = Blueprint('user', __name__)
@@ -223,3 +225,30 @@ def payment_history():
 
     transactions = UserService.get_transaction_by_user(user_id)
     return render_template('account/payment_history.html',transactions=transactions)
+
+@user_bp.route('/property/<int:id>/comments')
+def get_comments(id):
+    comments = ReviewService.get_review_by_property_id(id)
+    return jsonify(comments)
+
+@user_bp.route('/comments/<int:commentId>/report',methods=['POST'])
+def created_report(commentId):
+    data = request.get_json(silent=True) or {}
+    reason = data.get('reason')
+
+    user_id = session.get('user_id')
+
+    success = ReviewReportService.create_report(
+        review_id=commentId,
+        reporter_id=user_id,
+        reason=reason
+    )
+
+    if not success:
+        return jsonify({
+            "message": "Bạn đã báo cáo bình luận này rồi"
+        }), 400
+
+    return jsonify({
+        "message": "Báo cáo thành công"
+    }), 201

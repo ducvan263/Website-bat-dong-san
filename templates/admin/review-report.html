@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/admin__base.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/base.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/admin/admin_property.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='fonts/fontawesome-free-6.4.0-web/css/all.css' )}}">
+<link rel="stylesheet"
+      href="{{ url_for('static',filename='css/fonts/fontawesome-free-6.4.0-web/css/all.css' )}}">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.min.css">
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+
+    <title>Admin</title>
+
+    <style>
+        .dt-header,
+        .dt-info {
+            font-size: 1.6rem;
+        }
+    </style>
+
+
+</head>
+
+<body>
+<div class="admin">
+
+    {% include 'admin/header.html' %}
+
+    <div class="container">
+    {% include 'admin/sidebar.html' %}
+
+
+        <!-- Table Section -->
+        <div id="table-container">
+            <h3>Quản lý bình luận bị báo cáo</h3>
+            <div class="property_management">
+
+                <table id="propertyTable">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>ID bình luận</th>
+                        <th>ID người báo cáo</th>
+                        <th>Nội dung bình luận</th>
+                        <th>Nội dung báo cáo</th>
+                        <th>Ngày báo cáo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for rp in review_report%}
+                        <tr>
+                            <td>{{ rp.id }}</td>
+                            <td>{{ rp.review_id}}</td>
+                            <td>{{ rp.reporter_id }}</td>
+                            <td>{{ rp.comment }}</td>
+                            <td>{{ rp.reason }}</td>
+                            <td>{{ rp.report_created_at }}</td>
+                            <td>
+                                <div>
+                               <button class="danger"
+                                        onclick="deleteReview({{ rp.review_id }}, this)">
+                                    <i class="fa-solid fa-trash"></i> Xóa bình luận
+                                </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+        <!-- Form thêm -->
+
+
+
+
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        let table = $('#propertyTable').DataTable();
+
+
+    });
+function deleteReview(reviewId, btn) {
+    if (!confirm('Bạn có chắc muốn xóa bình luận này?')) return;
+
+    $.ajax({
+        url: `/admin/reviews/${reviewId}/delete`,
+        method: 'DELETE',
+        success: function (res) {
+            alert(res.message);
+
+            // Xóa dòng khỏi DataTable
+            const row = btn.closest('tr');
+            $('#propertyTable').DataTable().row(row).remove().draw();
+        },
+        error: function (xhr) {
+            alert(
+                xhr.responseJSON?.message ||
+                'Xóa thất bại'
+            );
+        }
+    });
+}
+</script>
+
+</body>
+</html>
